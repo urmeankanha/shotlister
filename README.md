@@ -11,8 +11,8 @@
 ╚══════╝╚═╝  ╚═╝ ╚═════╝    ╚═╝   ╚══════╝╚═╝╚══════╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
 ```
 
-**A brutally good shot list tool for filmmakers.**  
-One file. No login. No cloud. Just your shots.
+**make shot lists the easy way.**  
+kill all your subscritions please, were back to true indie filmmaking.
 
 <br/>
 
@@ -29,7 +29,7 @@ One file. No login. No cloud. Just your shots.
 
 ## ▸ What is this?
 
-**shotlister** is a single `index.html` file that turns any browser into a professional shot list tool — StudioBinder vibes, zero subscription. Drop it on GitHub Pages and share it with your whole crew. Everything saves locally in the browser. Nothing leaves the device.
+**shotlister** is a single `index.html` file that turns any browser into a professional shot list tool — StudioBinder style, zero subscription. Drop it on GitHub Pages and share it with your whole crew. Everything saves locally in the browser. Nothing leaves the device.
 
 Built for directors, ADs, DPs, and anyone who's ever tried to manage a shot list in a Google Sheet and wanted to cry.
 
