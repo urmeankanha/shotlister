@@ -77,22 +77,7 @@ Live dashboard showing:
 
 ## ▸ Getting Started
 
-### Option 1 — GitHub Pages (Recommended)
-
-```bash
-# 1. Fork or clone this repo
-git clone https://github.com/yourusername/shotlister.git
-
-# 2. That's it. Enable GitHub Pages:
-#    Settings → Pages → Source: main / root
-
-# Your app is live at:
-# https://yourusername.github.io/shotlister
-```
-
-> **Settings → Pages → Deploy from branch → `main` → `/ (root)`**
-
-### Option 2 — Just open it locally
+### Option 1 — Just open it locally
 
 ```bash
 # Download index.html, double-click it.
@@ -100,6 +85,16 @@ git clone https://github.com/yourusername/shotlister.git
 ```
 
 No build step. No npm install. No webpack. Nothing.
+
+### Option 2 — Just use the website buddy
+
+```bash
+# https://urmeankanha.github.io/shotlister/. enter.
+# done.
+```
+
+seriously. just use the website
+
 
 ---
 
