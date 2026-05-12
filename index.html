@@ -5,28 +5,32 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>shotlister.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- SheetJS for xlsx export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root {
-  --bg:       #f7f3ec;
-  --bg2:      #eee8dc;
-  --ink:      #111111;
-  --white:    #ffffff;
-  --yellow:   #f5d800;
-  --pink:     #ff6b9d;
-  --blue:     #3a6fff;
-  --green:    #00c97a;
-  --orange:   #ff6b2b;
-  --purple:   #9b5de5;
-  --red:      #ff3636;
-  --border:   3px solid #111;
-  --shadow:   4px 4px 0 #111;
-  --shadow-lg:6px 6px 0 #111;
-  --shadow-xl:8px 8px 0 #111;
-  --radius:   10px;
-  --radius-sm:6px;
-  --font-head:'Syne', sans-serif;
-  --font-body:'DM Mono', monospace;
+  --bg:        #f7f3ec;
+  --bg2:       #eee8dc;
+  --ink:       #111111;
+  --ink2:      #444444;
+  --white:     #ffffff;
+  --yellow:    #f5d800;
+  --pink:      #ff6b9d;
+  --blue:      #3a6fff;
+  --green:     #00c97a;
+  --orange:    #ff6b2b;
+  --purple:    #9b5de5;
+  --red:       #ff3636;
+  --border:    3px solid #111;
+  --border-sm: 2px solid #111;
+  --shadow:    4px 4px 0 #111;
+  --shadow-lg: 6px 6px 0 #111;
+  --shadow-xl: 8px 8px 0 #111;
+  --radius:    10px;
+  --radius-sm: 6px;
+  --font-head: 'Syne', sans-serif;
+  --font-body: 'Inter', sans-serif;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
@@ -35,13 +39,14 @@ body {
   background: var(--bg);
   color: var(--ink);
   min-height: 100vh;
-  font-size: 12px;
+  font-size: 13px;
+  line-height: 1.5;
   overflow-x: hidden;
 }
 body::before {
   content:'';
   position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  background-image: radial-gradient(circle, #11111115 1px, transparent 1px);
+  background-image: radial-gradient(circle, #11111112 1px, transparent 1px);
   background-size: 28px 28px;
   animation: bgDrift 30s linear infinite;
 }
@@ -50,120 +55,205 @@ body::before {
   100% { background-position: 56px 56px; }
 }
 
-/* ── HERO ── */
+/* ─────────────────────────────────────────
+   HERO
+───────────────────────────────────────── */
 .hero {
-  padding: 36px 52px 28px;
+  padding: 32px 52px 26px;
   border-bottom: var(--border);
-  display: flex; align-items: flex-end;
-  justify-content: space-between; gap: 24px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  gap: 24px;
   position: relative; z-index: 10;
   background: var(--bg);
   animation: slideDown .55s cubic-bezier(.22,1,.36,1) both;
+  overflow: visible;
 }
 @keyframes slideDown {
-  from { opacity:0; transform: translateY(-30px); }
+  from { opacity:0; transform: translateY(-28px); }
   to   { opacity:1; transform: none; }
-}
-.hero::before {
-  content:'';
-  position: absolute; right: 52px; top: 20px;
-  width: 110px; height: 110px;
-  background: var(--yellow);
-  border: var(--border);
-  border-radius: var(--radius);
-  transform: rotate(8deg);
-  z-index: -1;
-  animation: wobble 4s ease-in-out infinite;
-}
-@keyframes wobble {
-  0%,100% { transform: rotate(8deg) scale(1); }
-  50%      { transform: rotate(13deg) scale(1.05); }
 }
 .hero-left { display: flex; flex-direction: column; gap: 8px; }
 .eyebrow {
   font-family: var(--font-body);
-  font-size: 10px; font-weight: 500; letter-spacing: .22em;
-  text-transform: uppercase; color: var(--ink);
+  font-size: 11px; font-weight: 600; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--ink2);
   display: flex; align-items: center; gap: 8px;
 }
 .eyebrow-dot {
   width: 8px; height: 8px; border-radius: 50%;
-  background: var(--pink); border: 2px solid var(--ink);
-  animation: blink 2s ease-in-out infinite;
+  background: var(--pink); border: var(--border-sm);
+  animation: blink 2.4s ease-in-out infinite;
 }
 @keyframes blink {
   0%,100% { transform: scale(1); opacity:1; }
-  50%      { transform: scale(1.5); opacity:.7; }
+  50%      { transform: scale(1.5); opacity:.6; }
 }
 .project-name {
   font-family: var(--font-head);
-  font-size: clamp(36px, 5.5vw, 66px);
+  font-size: clamp(34px, 5vw, 62px);
   font-weight: 800; line-height: .92; letter-spacing: -.03em;
   color: var(--ink);
   border: none; background: none; outline: none; width: 100%;
   caret-color: var(--pink);
-  transition: color .2s;
 }
-.project-name:focus { color: var(--ink); }
-.project-name::placeholder { color: #11111138; }
-.hero-meta { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 2px; }
+.project-name::placeholder { color: #11111130; }
+.hero-meta { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 4px; }
 .meta-tag {
   display: inline-flex; align-items: center; gap: 6px;
   background: var(--white); border: var(--border);
   border-radius: 100px; padding: 4px 14px;
-  font-size: 11px; font-weight: 500; font-family: var(--font-body);
+  font-size: 12px; font-weight: 600; font-family: var(--font-body);
+  color: var(--ink);
   box-shadow: var(--shadow);
   transition: transform .15s, box-shadow .15s;
 }
 .meta-tag:hover { transform: translate(-2px,-2px); box-shadow: var(--shadow-lg); }
 .meta-dot { width:6px;height:6px;border-radius:50%;border:2px solid var(--ink); }
-.hero-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 
-/* ── BUTTONS ── */
+/* ─────────────────────────────────────────
+   STATS PANEL  (was the useless box)
+───────────────────────────────────────── */
+.stats-panel {
+  background: var(--yellow);
+  border: var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-xl);
+  padding: 16px 20px 18px;
+  min-width: 220px;
+  animation: slideDown .55s .08s cubic-bezier(.22,1,.36,1) both;
+  position: relative;
+}
+.stats-panel-title {
+  font-family: var(--font-head);
+  font-size: 10px; font-weight: 800;
+  letter-spacing: .2em; text-transform: uppercase;
+  color: var(--ink); margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.stats-panel-title::after {
+  content:''; flex:1; height:2px; background:var(--ink); border-radius:2px;
+}
+.stats-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 8px; margin-bottom: 14px;
+}
+.stat-box {
+  background: var(--white); border: var(--border);
+  border-radius: var(--radius-sm); padding: 8px 10px;
+  box-shadow: 3px 3px 0 #111;
+  transition: transform .12s, box-shadow .12s;
+  cursor: default;
+}
+.stat-box:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 #111; }
+.stat-num {
+  font-family: var(--font-head);
+  font-size: 22px; font-weight: 800; line-height: 1;
+  color: var(--ink);
+}
+.stat-label {
+  font-size: 10px; font-weight: 600; color: var(--ink2);
+  letter-spacing: .06em; text-transform: uppercase; margin-top: 2px;
+}
+.stat-box.wide { grid-column: 1/-1; }
+
+.stats-actions { display: flex; flex-direction: column; gap: 6px; }
+.stat-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px; border-radius: var(--radius-sm);
+  border: var(--border); background: var(--white); cursor: pointer;
+  font-family: var(--font-body); font-size: 12px; font-weight: 600; color: var(--ink);
+  box-shadow: var(--shadow); transition: transform .12s, box-shadow .12s, background .12s;
+  text-align: left;
+}
+.stat-btn:hover  { transform: translate(-2px,-2px); box-shadow: var(--shadow-lg); }
+.stat-btn:active { transform: translate(1px,1px); box-shadow: 2px 2px 0 #111; }
+.stat-btn.accent { background: var(--ink); color: var(--yellow); }
+.stat-btn.accent:hover { background: #333; }
+.stat-btn svg { flex-shrink: 0; }
+
+/* scene completion bar */
+.completion-wrap { margin-top: 10px; }
+.completion-label {
+  font-size: 11px; font-weight: 600; color: var(--ink);
+  display: flex; justify-content: space-between; margin-bottom: 5px;
+}
+.completion-bar {
+  height: 8px; background: var(--white); border: var(--border-sm);
+  border-radius: 100px; overflow: hidden;
+}
+.completion-fill {
+  height: 100%; background: var(--ink); border-radius: 100px;
+  transition: width .5s cubic-bezier(.22,1,.36,1);
+}
+
+/* ─────────────────────────────────────────
+   HERO RIGHT (buttons)
+───────────────────────────────────────── */
+.hero-right {
+  display: flex; align-items: center; gap: 10px;
+  flex-shrink: 0; padding-top: 2px;
+}
+
+/* ─────────────────────────────────────────
+   BUTTONS
+───────────────────────────────────────── */
 .btn {
   display: inline-flex; align-items: center; gap: 7px;
   padding: 10px 20px; border-radius: var(--radius);
   border: var(--border); cursor: pointer;
-  font-size: 12px; font-weight: 700;
-  font-family: var(--font-head); letter-spacing: .04em;
+  font-size: 13px; font-weight: 600;
+  font-family: var(--font-body); letter-spacing: .01em;
   transition: transform .12s, box-shadow .12s;
   white-space: nowrap; box-shadow: var(--shadow);
+  line-height: 1;
 }
 .btn:hover  { transform: translate(-2px,-2px); box-shadow: var(--shadow-lg); }
 .btn:active { transform: translate(2px,2px);   box-shadow: 2px 2px 0 #111; }
 .btn-primary { background: var(--yellow); color: var(--ink); }
 .btn-outline  { background: var(--white);  color: var(--ink); }
-.btn-ghost    { background: var(--bg2);    color: var(--ink); box-shadow:none; border-color:#11111130; }
+.btn-ghost    { background: var(--bg2);    color: var(--ink); box-shadow: none; border-color: #11111135; }
 .btn-ghost:hover { box-shadow: var(--shadow); border-color: var(--ink); }
 .btn-danger   { background: var(--red); color: var(--white); }
 
-/* ── TOOLBAR ── */
+/* ─────────────────────────────────────────
+   TOOLBAR  — fixed layout so nothing overlaps
+───────────────────────────────────────── */
 .toolbar {
   display: flex; align-items: center; gap: 10px;
-  padding: 14px 52px; border-bottom: var(--border);
-  background: var(--bg); position: sticky; top: 0; z-index: 80;
+  padding: 12px 52px;
+  border-bottom: var(--border);
+  background: var(--bg);
+  position: sticky; top: 0; z-index: 80;
   flex-wrap: wrap;
-  animation: slideDown .5s .08s cubic-bezier(.22,1,.36,1) both;
+  row-gap: 8px;
+  animation: slideDown .5s .1s cubic-bezier(.22,1,.36,1) both;
 }
+.toolbar-left  { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; flex: 1; min-width: 0; }
+.toolbar-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+
 .search-wrap {
   display: flex; align-items: center; gap: 8px;
   background: var(--white); border: var(--border);
   border-radius: var(--radius); padding: 8px 14px;
-  box-shadow: var(--shadow); min-width: 200px;
+  box-shadow: var(--shadow); min-width: 180px; max-width: 220px;
   transition: transform .12s, box-shadow .12s;
 }
 .search-wrap:focus-within { transform: translate(-2px,-2px); box-shadow: var(--shadow-lg); }
 .search-wrap input {
   border: none; background: none; outline: none;
-  font-family: var(--font-body); font-size: 12px; color: var(--ink); width: 100%;
+  font-family: var(--font-body); font-size: 13px; color: var(--ink); width: 100%;
+  font-weight: 500;
 }
 .search-wrap input::placeholder { color: #11111155; }
+
 .sel-wrap { position: relative; }
 .sel-wrap select {
   appearance: none; -webkit-appearance: none;
   background: var(--white); border: var(--border);
   border-radius: var(--radius); padding: 8px 34px 8px 14px;
-  font-family: var(--font-body); font-size: 12px; color: var(--ink);
+  font-family: var(--font-body); font-size: 13px; color: var(--ink);
   cursor: pointer; outline: none; box-shadow: var(--shadow); font-weight: 500;
   transition: transform .12s, box-shadow .12s;
 }
@@ -171,38 +261,65 @@ body::before {
 .sel-wrap::after {
   content:'▾'; position: absolute; right: 11px; top: 50%;
   transform: translateY(-50%); pointer-events: none;
-  font-size: 12px; color: var(--ink);
+  font-size: 12px; color: var(--ink); font-weight: 700;
 }
-.tb-spacer { flex: 1; }
+
 .tally {
   font-family: var(--font-head); font-size: 13px; font-weight: 800;
   background: var(--yellow); border: var(--border); border-radius: 100px;
-  padding: 4px 16px; box-shadow: var(--shadow);
+  padding: 4px 16px; box-shadow: var(--shadow); white-space: nowrap;
 }
 
-/* ── MAIN ── */
+/* export dropdown */
+.ddwrap { position: relative; }
+.dd {
+  display: none; position: absolute; top: calc(100% + 6px); right: 0;
+  background: var(--white); border: var(--border);
+  border-radius: var(--radius); padding: 6px; min-width: 200px;
+  box-shadow: var(--shadow-xl); z-index: 200;
+  animation: ddIn .18s cubic-bezier(.22,1,.36,1);
+}
+.dd.open { display: block; }
+@keyframes ddIn {
+  from { opacity:0; transform: translateY(-6px) scale(.97); }
+  to   { opacity:1; transform: none; }
+}
+.dd-item {
+  padding: 10px 14px; border-radius: var(--radius-sm); cursor: pointer;
+  font-size: 13px; font-family: var(--font-body); color: var(--ink); font-weight: 500;
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid #11111110;
+  transition: background .1s, padding-left .12s;
+}
+.dd-item:last-child { border-bottom: none; }
+.dd-item:hover { background: var(--yellow); padding-left: 20px; }
+.dd-divider {
+  height: 2px; background: var(--ink); margin: 4px 6px; border-radius: 2px;
+}
+
+/* ─────────────────────────────────────────
+   MAIN
+───────────────────────────────────────── */
 .main { padding: 36px 52px 120px; position: relative; z-index: 1; }
 .scene-group {
   margin-bottom: 52px;
   opacity: 0; transform: translateY(20px);
   animation: fadeUp .5s cubic-bezier(.22,1,.36,1) forwards;
 }
-@keyframes fadeUp {
-  to { opacity:1; transform: none; }
-}
+@keyframes fadeUp { to { opacity:1; transform: none; } }
 .scene-heading { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
 .scene-badge {
   font-family: var(--font-head); font-size: 11px; font-weight: 800;
   letter-spacing: .15em; text-transform: uppercase;
   background: var(--pink); color: var(--white);
-  border: var(--border); border-radius: 100px; padding: 4px 16px;
+  border: var(--border); border-radius: 100px; padding: 5px 16px;
   box-shadow: var(--shadow); white-space: nowrap;
   transition: transform .15s, box-shadow .15s;
 }
 .scene-badge:hover { transform: translate(-2px,-2px); box-shadow: var(--shadow-lg); }
 .scene-rule { flex:1; height:3px; background:var(--ink); border-radius:2px; }
 .scene-count {
-  font-size: 10px; font-weight: 700;
+  font-size: 11px; font-weight: 600;
   background: var(--bg2); border: 2px solid var(--ink);
   border-radius: 100px; padding: 3px 12px;
 }
@@ -211,22 +328,27 @@ body::before {
 .table-scroll { overflow-x: auto; border: var(--border); border-radius: var(--radius); box-shadow: var(--shadow-xl); }
 table { width: 100%; border-collapse: collapse; min-width: 1600px; background: var(--white); }
 thead th {
-  font-family: var(--font-head); font-size: 9px; font-weight: 800;
-  letter-spacing: .18em; text-transform: uppercase; color: var(--ink);
-  padding: 12px 12px 10px; text-align: left; white-space: nowrap;
+  font-family: var(--font-body); font-size: 10px; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase; color: var(--ink);
+  padding: 12px 14px 10px; text-align: left; white-space: nowrap;
   background: var(--yellow); border-bottom: var(--border); user-select: none;
 }
 thead th:first-child { width: 42px; }
 thead th.col-img { width: 96px; }
-tbody tr { border-bottom: 2px solid #11111115; transition: background .14s; cursor: default; animation: rowIn .35s cubic-bezier(.22,1,.36,1) both; }
+tbody tr {
+  border-bottom: 2px solid #11111112;
+  transition: background .14s;
+  cursor: default;
+  animation: rowIn .35s cubic-bezier(.22,1,.36,1) both;
+}
 tbody tr:last-child { border-bottom: none; }
 tbody tr:hover { background: #f5d80018; }
-tbody tr.sel  { background: #ff6b9d12; outline: 3px solid var(--pink); outline-offset: -2px; }
+tbody tr.sel  { background: #ff6b9d10; outline: 3px solid var(--pink); outline-offset: -2px; }
 @keyframes rowIn {
-  from { opacity:0; transform: translateX(-8px); }
+  from { opacity:0; transform: translateX(-6px); }
   to   { opacity:1; transform: none; }
 }
-td { padding: 0 12px; height: 72px; vertical-align: middle; }
+td { padding: 0 14px; height: 68px; vertical-align: middle; }
 td:first-child { padding-left: 14px; }
 td:last-child  { padding-right: 14px; }
 
@@ -247,18 +369,17 @@ td:last-child  { padding-right: 14px; }
 
 /* thumb */
 .thumb {
-  width: 76px; height: 52px; border-radius: var(--radius-sm);
+  width: 72px; height: 50px; border-radius: var(--radius-sm);
   background: var(--bg2); border: var(--border);
   overflow: hidden; position: relative;
   display: flex; align-items: center; justify-content: center;
   color: #11111144; flex-shrink: 0;
-  box-shadow: 3px 3px 0 #111;
-  transition: transform .15s, box-shadow .15s;
+  box-shadow: 3px 3px 0 #111; transition: transform .15s, box-shadow .15s;
 }
 .thumb:hover { transform: translate(-2px,-2px); box-shadow: 5px 5px 0 #111; }
 .thumb img { width:100%;height:100%;object-fit:cover; }
 .thumb-over {
-  position: absolute; inset: 0; background: rgba(17,17,17,.7);
+  position: absolute; inset: 0; background: rgba(17,17,17,.72);
   display: flex; align-items: center; justify-content: center;
   opacity: 0; transition: opacity .14s; cursor: pointer;
   flex-direction: column; gap: 3px;
@@ -267,45 +388,45 @@ td:last-child  { padding-right: 14px; }
 .thumb input[type=file] { display: none; }
 .thumb-action {
   display: flex; align-items: center; gap: 4px;
-  color: #fff; font-size: 9px; font-weight: 700; font-family: var(--font-head);
-  letter-spacing: .08em; cursor: pointer; padding: 3px 8px;
-  border-radius: 4px; transition: background .1s;
+  color: #fff; font-size: 9px; font-weight: 700; font-family: var(--font-body);
+  letter-spacing: .06em; cursor: pointer; padding: 4px 8px;
+  border-radius: 4px; transition: background .1s; line-height: 1;
 }
 .thumb-action:hover { background: rgba(255,255,255,.18); }
 .thumb-action.remove:hover { background: rgba(255,54,54,.55); }
 
 /* shot number */
 .shot-num {
-  font-family: var(--font-head); font-size: 26px; font-weight: 800;
+  font-family: var(--font-head); font-size: 24px; font-weight: 800;
   color: var(--ink); text-align: center; line-height: 1;
 }
 
 /* cell input */
 .cinput {
   background: none; border: none; outline: none;
-  font-family: var(--font-body); font-size: 12px; color: var(--ink);
+  font-family: var(--font-body); font-size: 13px; color: var(--ink);
   width: 100%; padding: 5px 0; font-weight: 500;
   border-bottom: 2px solid transparent;
   transition: border-color .12s, background .12s, padding .12s;
 }
 .cinput::placeholder { color: #11111140; }
-.cinput:focus { border-bottom-color: var(--blue); background: #3a6fff0d; padding: 5px 6px; border-radius: 4px 4px 0 0; }
+.cinput:focus { border-bottom-color: var(--blue); background: #3a6fff0d; padding: 5px 7px; border-radius: 4px 4px 0 0; }
 
 /* pills */
 .pill {
   display: inline-flex; align-items: center;
   padding: 3px 10px; border-radius: 100px;
-  font-size: 10px; font-weight: 700; font-family: var(--font-body);
+  font-size: 11px; font-weight: 600; font-family: var(--font-body);
   white-space: nowrap; max-width: 140px; overflow: hidden; text-overflow: ellipsis;
-  border: 2px solid var(--ink); box-shadow: 2px 2px 0 #111;
+  border: 2px solid var(--ink); box-shadow: 2px 2px 0 #111; color: var(--ink);
 }
-.pill-a { background: #ffb3cc; color: var(--ink); }
-.pill-b { background: #b3ffd6; color: var(--ink); }
-.pill-c { background: #fff3b3; color: var(--ink); }
-.pill-d { background: #d4b3ff; color: var(--ink); }
+.pill-a { background: #ffb3cc; }
+.pill-b { background: #b3ffd6; }
+.pill-c { background: #fff3b3; }
+.pill-d { background: #d4b3ff; }
 .pill-e { background: var(--bg2); color: #11111155; border-color: #11111125; box-shadow:none; }
-.pill-f { background: #b3d4ff; color: var(--ink); }
-.pill-g { background: #ffd4b3; color: var(--ink); }
+.pill-f { background: #b3d4ff; }
+.pill-g { background: #ffd4b3; }
 
 /* row actions */
 .ractions { display: flex; gap: 5px; opacity: 0; transition: opacity .14s; }
@@ -325,9 +446,9 @@ tbody tr:hover .ractions { opacity: 1; }
 .add-row {
   display: flex; align-items: center; gap: 10px;
   width: 100%; padding: 14px 18px; margin-top: 10px;
-  background: var(--white); border: 3px dashed #11111166;
+  background: var(--white); border: 3px dashed #11111155;
   border-radius: var(--radius); cursor: pointer; color: #11111166;
-  font-family: var(--font-head); font-size: 12px; font-weight: 700;
+  font-family: var(--font-body); font-size: 13px; font-weight: 600;
   transition: all .17s;
 }
 .add-row:hover {
@@ -338,47 +459,49 @@ tbody tr:hover .ractions { opacity: 1; }
 /* empty */
 .empty { text-align: center; padding: 100px 24px; }
 .empty-title { font-family: var(--font-head); font-size: 36px; font-weight: 800; margin-bottom: 12px; }
-.empty-sub { color: #11111166; font-size: 13px; margin-bottom: 32px; }
+.empty-sub { color: #11111166; font-size: 14px; margin-bottom: 32px; }
 
-/* ── MODAL ── */
+/* ─────────────────────────────────────────
+   MODAL
+───────────────────────────────────────── */
 .overlay {
   display: none; position: fixed; inset: 0; z-index: 200;
-  background: rgba(17,17,17,.6); backdrop-filter: blur(4px);
+  background: rgba(17,17,17,.62); backdrop-filter: blur(4px);
   align-items: center; justify-content: center; padding: 24px;
 }
 .overlay.open { display: flex; }
 .modal {
   background: var(--bg); border: var(--border); border-radius: 14px;
-  width: 100%; max-width: 920px; max-height: 92vh; overflow-y: auto;
+  width: 100%; max-width: 940px; max-height: 92vh; overflow-y: auto;
   box-shadow: var(--shadow-xl);
   animation: mIn .3s cubic-bezier(.22,1,.36,1);
 }
 @keyframes mIn {
-  from { opacity:0; transform: scale(.9) translateY(24px); }
+  from { opacity:0; transform: scale(.9) translateY(22px); }
   to   { opacity:1; transform: none; }
 }
 .modal-head {
-  padding: 22px 30px 18px; border-bottom: var(--border);
+  padding: 20px 28px 18px; border-bottom: var(--border);
   display: flex; align-items: center; justify-content: space-between;
   background: var(--yellow); border-radius: 11px 11px 0 0;
   position: sticky; top: 0; z-index: 10;
 }
-.modal-title { font-family: var(--font-head); font-size: 26px; font-weight: 800; letter-spacing: -.02em; }
+.modal-title { font-family: var(--font-head); font-size: 24px; font-weight: 800; letter-spacing: -.02em; }
 .modal-x {
   width: 32px; height: 32px; border-radius: var(--radius-sm);
   border: var(--border); background: var(--white); cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  font-size: 15px; font-weight: 900; box-shadow: var(--shadow);
+  font-size: 15px; font-weight: 700; box-shadow: var(--shadow);
   transition: transform .12s, box-shadow .12s, background .12s;
 }
 .modal-x:hover { transform: translate(-2px,-2px); box-shadow: var(--shadow-lg); background: var(--red); color: #fff; }
-.modal-body { padding: 24px 30px 28px; display: flex; flex-direction: column; gap: 28px; }
+.modal-body { padding: 22px 28px 28px; display: flex; flex-direction: column; gap: 26px; }
 
 /* section */
 .msec-head { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
 .msec-badge {
-  font-family: var(--font-head); font-size: 10px; font-weight: 800;
-  letter-spacing: .2em; text-transform: uppercase;
+  font-family: var(--font-body); font-size: 10px; font-weight: 700;
+  letter-spacing: .16em; text-transform: uppercase;
   padding: 4px 14px; border-radius: 100px;
   border: var(--border); box-shadow: var(--shadow); white-space: nowrap;
 }
@@ -388,35 +511,36 @@ tbody tr:hover .ractions { opacity: 1; }
 .msec-badge.vfx     { background: var(--purple); color: var(--white); }
 .msec-rule { flex:1; height:3px; background:var(--ink); border-radius:2px; }
 
-/* grid */
+/* landscape grid */
 .fg { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px 18px; }
 .fg.fg-3 { grid-template-columns: repeat(3,1fr); }
 .f  { display: flex; flex-direction: column; gap: 6px; }
-.f.span2 { grid-column: span 2; }
-.f.full  { grid-column: 1/-1; }
+.f.full { grid-column: 1/-1; }
+
 .flabel {
-  font-family: var(--font-head); font-size: 9px; font-weight: 800;
-  letter-spacing: .2em; text-transform: uppercase; color: var(--ink);
+  font-family: var(--font-body); font-size: 10px; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase; color: var(--ink2);
 }
 
-/* ── COMBO FIELD ── */
+/* combo / field */
 .combo-wrap { position: relative; }
 .ffield {
   background: var(--white); border: var(--border); border-radius: var(--radius-sm);
   padding: 9px 40px 9px 12px;
-  font-family: var(--font-body); font-size: 12px; color: var(--ink); font-weight: 500;
+  font-family: var(--font-body); font-size: 13px; color: var(--ink); font-weight: 500;
   outline: none; width: 100%; box-shadow: var(--shadow);
   transition: transform .12s, box-shadow .12s;
+  line-height: 1.4;
 }
 .ffield:focus { transform: translate(-2px,-2px); box-shadow: var(--shadow-lg); }
-.ffield::placeholder { color: #11111155; }
-textarea.ffield { resize: vertical; min-height: 62px; padding-right: 12px; }
-input.ffield:not(.has-arrow) { padding-right: 12px; }
+.ffield::placeholder { color: #11111150; }
+textarea.ffield { resize: vertical; min-height: 60px; padding-right: 12px; }
+.ffield.no-arrow { padding-right: 12px; }
 
 .combo-arrow {
   position: absolute; right: 0; top: 0; bottom: 0; width: 38px;
   display: flex; align-items: center; justify-content: center;
-  border-left: var(--border); cursor: pointer; font-size: 12px;
+  border-left: var(--border); cursor: pointer; font-size: 13px;
   background: var(--bg2); border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
   transition: background .12s; user-select: none; font-weight: 700;
 }
@@ -430,14 +554,10 @@ input.ffield:not(.has-arrow) { padding-right: 12px; }
   animation: ddIn .18s cubic-bezier(.22,1,.36,1);
 }
 .combo-dropdown.open { display: block; }
-@keyframes ddIn {
-  from { opacity:0; transform: translateY(-6px) scale(.97); }
-  to   { opacity:1; transform: none; }
-}
 .combo-opt {
-  padding: 9px 14px; cursor: pointer; font-size: 11.5px;
-  font-family: var(--font-body); color: var(--ink); font-weight: 500;
-  border-bottom: 1px solid #11111110;
+  padding: 9px 14px; cursor: pointer;
+  font-size: 13px; font-family: var(--font-body); color: var(--ink); font-weight: 500;
+  border-bottom: 1px solid #11111110; line-height: 1.4;
   transition: background .1s, padding-left .12s;
 }
 .combo-opt:last-child { border-bottom: none; }
@@ -445,29 +565,8 @@ input.ffield:not(.has-arrow) { padding-right: 12px; }
 .combo-opt.active { background: var(--blue); color: var(--white); }
 .combo-opt.hidden { display: none; }
 
-/* export dd */
-.ddwrap { position: relative; }
-.dd {
-  display: none; position: absolute; top: calc(100% + 6px); right: 0;
-  background: var(--white); border: var(--border);
-  border-radius: var(--radius); padding: 6px; min-width: 180px;
-  box-shadow: var(--shadow-xl); z-index: 60;
-  animation: ddIn .18s cubic-bezier(.22,1,.36,1);
-}
-.dd.open { display: block; }
-.dd-item {
-  padding: 10px 14px; border-radius: var(--radius-sm); cursor: pointer;
-  font-size: 12px; font-family: var(--font-body); color: var(--ink); font-weight: 500;
-  display: flex; align-items: center; gap: 10px;
-  border-bottom: 1px solid #11111110;
-  transition: background .1s, padding-left .12s;
-}
-.dd-item:last-child { border-bottom: none; }
-.dd-item:hover { background: var(--yellow); padding-left: 20px; }
-
-/* modal foot */
 .modal-foot {
-  padding: 16px 30px 24px; border-top: var(--border);
+  padding: 14px 28px 22px; border-top: var(--border);
   display: flex; justify-content: flex-end; gap: 10px;
   background: var(--bg2); border-radius: 0 0 11px 11px;
   position: sticky; bottom: 0;
@@ -478,11 +577,11 @@ input.ffield:not(.has-arrow) { padding-right: 12px; }
   position: fixed; bottom: 28px; left: 50%; z-index: 400;
   transform: translateX(-50%) translateY(80px) rotate(-2deg);
   background: var(--ink); color: var(--yellow);
-  padding: 12px 28px; border: var(--border); border-radius: var(--radius);
+  padding: 12px 26px; border: var(--border); border-radius: var(--radius);
   font-family: var(--font-head); font-size: 14px; font-weight: 800;
   box-shadow: var(--shadow-xl); opacity: 0;
   transition: transform .3s cubic-bezier(.22,1,.36,1), opacity .3s;
-  white-space: nowrap; letter-spacing: .05em;
+  white-space: nowrap; letter-spacing: .04em;
 }
 .toast.show { transform: translateX(-50%) translateY(0) rotate(-1deg); opacity: 1; }
 
@@ -490,21 +589,25 @@ input.ffield:not(.has-arrow) { padding-right: 12px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--ink); border-radius: 0; }
 
+@media (max-width: 900px) {
+  .hero { grid-template-columns: 1fr; }
+  .stats-panel { display: none; }
+}
 @media (max-width: 720px) {
   .hero, .toolbar, .main { padding-left: 18px; padding-right: 18px; }
   .project-name { font-size: 32px; }
-  .hero-right { flex-direction: column; align-items: flex-end; }
   .fg, .fg.fg-3 { grid-template-columns: 1fr 1fr; }
-  .hero::before { display: none; }
+  .toolbar { padding-left: 18px; padding-right: 18px; }
 }
 @media print {
-  .toolbar, .hero-right, .ractions, .add-row, body::before { display: none !important; }
+  .toolbar, .hero-right, .stats-panel, .ractions, .add-row, body::before { display: none !important; }
   body { background: #fff; } table { min-width: auto; }
 }
 </style>
 </head>
 <body>
 
+<!-- ══════════════ HERO ══════════════ -->
 <header class="hero">
   <div class="hero-left">
     <div class="eyebrow"><span class="eyebrow-dot"></span> Shot List</div>
@@ -514,16 +617,100 @@ input.ffield:not(.has-arrow) { padding-right: 12px; }
       <div class="meta-tag"><span class="meta-dot" style="background:var(--pink)"></span><strong id="metaScenes">0</strong>&nbsp;scenes</div>
     </div>
   </div>
-  <div class="hero-right">
+
+  <!-- STATS PANEL -->
+  <div class="stats-panel" id="statsPanel">
+    <div class="stats-panel-title">Project Stats</div>
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="stat-num" id="st_shots">0</div>
+        <div class="stat-label">Total Shots</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="st_scenes">0</div>
+        <div class="stat-label">Scenes</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="st_vfx">0</div>
+        <div class="stat-label">VFX Shots</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="st_framed">0</div>
+        <div class="stat-label">Framed</div>
+      </div>
+      <div class="stat-box wide">
+        <div class="stat-num" id="st_mostmove" style="font-size:13px;font-weight:700;font-family:var(--font-body)">—</div>
+        <div class="stat-label">Top Movement</div>
+      </div>
+    </div>
+    <div class="completion-wrap">
+      <div class="completion-label">
+        <span>Frames filled</span>
+        <span id="st_pct">0%</span>
+      </div>
+      <div class="completion-bar"><div class="completion-fill" id="st_bar" style="width:0%"></div></div>
+    </div>
+    <div class="stats-actions" style="margin-top:12px">
+      <button class="stat-btn" onclick="openModal()">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Shot
+      </button>
+      <button class="stat-btn accent" onclick="exportXLSX()">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Export to Spreadsheet
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ══════════════ TOOLBAR ══════════════ -->
+<div class="toolbar">
+  <div class="toolbar-left">
+    <div class="search-wrap">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="searchInput" type="text" placeholder="Search shots…" oninput="renderAll()">
+    </div>
+    <div class="sel-wrap">
+      <select id="filterScene" onchange="renderAll()"><option value="">All Scenes</option></select>
+    </div>
+    <div class="sel-wrap">
+      <select id="filterType" onchange="renderAll()">
+        <option value="">All Shot Types</option>
+        <option>Wide</option><option>Medium</option><option>Close-Up</option>
+        <option>Extreme Close-Up</option><option>Over the Shoulder</option>
+        <option>POV</option><option>Insert</option><option>Aerial</option><option>Two Shot</option>
+      </select>
+    </div>
+    <button class="btn btn-danger" id="delSelBtn" style="display:none" onclick="deleteSelected()">
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+      Delete selected
+    </button>
+  </div>
+  <div class="toolbar-right">
+    <div class="tally" id="tally">0 shots</div>
     <div class="ddwrap">
       <button class="btn btn-outline" onclick="toggleDD()">
         <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Export
       </button>
       <div class="dd" id="dd">
-        <div class="dd-item" onclick="exportCSV()">📄 CSV</div>
-        <div class="dd-item" onclick="exportJSON()">📦 JSON</div>
-        <div class="dd-item" onclick="window.print()">🖨️ Print / PDF</div>
+        <div class="dd-item" onclick="exportXLSX()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Excel / XLSX
+        </div>
+        <div class="dd-item" onclick="exportCSV()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          CSV
+        </div>
+        <div class="dd-divider"></div>
+        <div class="dd-item" onclick="exportJSON()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          JSON
+        </div>
+        <div class="dd-item" onclick="window.print()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          Print / PDF
+        </div>
       </div>
     </div>
     <button class="btn btn-primary" onclick="openModal()">
@@ -531,30 +718,6 @@ input.ffield:not(.has-arrow) { padding-right: 12px; }
       Add Shot
     </button>
   </div>
-</header>
-
-<div class="toolbar">
-  <div class="search-wrap">
-    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    <input id="searchInput" type="text" placeholder="Search shots…" oninput="renderAll()">
-  </div>
-  <div class="sel-wrap">
-    <select id="filterScene" onchange="renderAll()"><option value="">All Scenes</option></select>
-  </div>
-  <div class="sel-wrap">
-    <select id="filterType" onchange="renderAll()">
-      <option value="">All Shot Types</option>
-      <option>Wide</option><option>Medium</option><option>Close-Up</option>
-      <option>Extreme Close-Up</option><option>Over the Shoulder</option>
-      <option>POV</option><option>Insert</option><option>Aerial</option><option>Two Shot</option>
-    </select>
-  </div>
-  <div class="tb-spacer"></div>
-  <button class="btn btn-danger" id="delSelBtn" style="display:none" onclick="deleteSelected()">
-    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
-    Delete selected
-  </button>
-  <div class="tally" id="tally">0 shots</div>
 </div>
 
 <main class="main" id="root"></main>
@@ -572,10 +735,10 @@ input.ffield:not(.has-arrow) { padding-right: 12px; }
       <div>
         <div class="msec-head"><div class="msec-badge basics">Basics</div><div class="msec-rule"></div></div>
         <div class="fg">
-          <div class="f"><label class="flabel">Scene #</label><input class="ffield" id="f_scene" type="number" min="1" placeholder="1" style="padding-right:12px"></div>
-          <div class="f"><label class="flabel">Shot #</label><input class="ffield" id="f_shot" type="number" min="1" placeholder="1" style="padding-right:12px"></div>
-          <div class="f"><label class="flabel">Subject</label><input class="ffield" id="f_subject" placeholder="Maya, the red car…" style="padding-right:12px"></div>
-          <div class="f"><label class="flabel">Location</label><input class="ffield" id="f_location" placeholder="Studio A, Rooftop…" style="padding-right:12px"></div>
+          <div class="f"><label class="flabel">Scene #</label><input class="ffield no-arrow" id="f_scene" type="number" min="1" placeholder="1"></div>
+          <div class="f"><label class="flabel">Shot #</label><input class="ffield no-arrow" id="f_shot" type="number" min="1" placeholder="1"></div>
+          <div class="f"><label class="flabel">Subject</label><input class="ffield no-arrow" id="f_subject" placeholder="Maya, the red car…"></div>
+          <div class="f"><label class="flabel">Location</label><input class="ffield no-arrow" id="f_location" placeholder="Studio A, Rooftop…"></div>
           <div class="f full"><label class="flabel">Description</label><textarea class="ffield" id="f_desc" placeholder="What happens in this shot…"></textarea></div>
         </div>
       </div>
@@ -584,101 +747,54 @@ input.ffield:not(.has-arrow) { padding-right: 12px; }
       <div>
         <div class="msec-head"><div class="msec-badge camera">Camera</div><div class="msec-rule"></div></div>
         <div class="fg">
-          <div class="f"><label class="flabel">Camera</label><input class="ffield" id="f_camera" placeholder="A-Cam, Sony FX3…" style="padding-right:12px"></div>
-
+          <div class="f"><label class="flabel">Camera</label><input class="ffield no-arrow" id="f_camera" placeholder="A-Cam, Sony FX3…"></div>
           <div class="f"><label class="flabel">Shot Size</label>
             <div class="combo-wrap">
-              <input class="ffield has-arrow" id="f_shotsize" placeholder="Select or type…" autocomplete="off" oninput="comboFilter('shotsize')" onfocus="comboOpen('shotsize')">
+              <input class="ffield" id="f_shotsize" placeholder="Select or type…" autocomplete="off" oninput="comboFilter('shotsize')" onfocus="comboOpen('shotsize')">
               <div class="combo-arrow" onclick="comboToggle('shotsize')">▾</div>
               <div class="combo-dropdown" id="drop_shotsize">
-                <div class="combo-opt" onclick="comboPick('shotsize',this)">Extreme Wide</div>
-                <div class="combo-opt" onclick="comboPick('shotsize',this)">Wide</div>
-                <div class="combo-opt" onclick="comboPick('shotsize',this)">Medium Wide</div>
-                <div class="combo-opt" onclick="comboPick('shotsize',this)">Medium</div>
-                <div class="combo-opt" onclick="comboPick('shotsize',this)">Medium Close-Up</div>
-                <div class="combo-opt" onclick="comboPick('shotsize',this)">Close-Up</div>
-                <div class="combo-opt" onclick="comboPick('shotsize',this)">Extreme Close-Up</div>
+                <div class="combo-opt" onclick="comboPick('shotsize',this)">Extreme Wide</div><div class="combo-opt" onclick="comboPick('shotsize',this)">Wide</div><div class="combo-opt" onclick="comboPick('shotsize',this)">Medium Wide</div><div class="combo-opt" onclick="comboPick('shotsize',this)">Medium</div><div class="combo-opt" onclick="comboPick('shotsize',this)">Medium Close-Up</div><div class="combo-opt" onclick="comboPick('shotsize',this)">Close-Up</div><div class="combo-opt" onclick="comboPick('shotsize',this)">Extreme Close-Up</div>
               </div>
             </div>
           </div>
-
           <div class="f"><label class="flabel">Shot Type</label>
             <div class="combo-wrap">
-              <input class="ffield has-arrow" id="f_shottype" placeholder="Select or type…" autocomplete="off" oninput="comboFilter('shottype')" onfocus="comboOpen('shottype')">
+              <input class="ffield" id="f_shottype" placeholder="Select or type…" autocomplete="off" oninput="comboFilter('shottype')" onfocus="comboOpen('shottype')">
               <div class="combo-arrow" onclick="comboToggle('shottype')">▾</div>
               <div class="combo-dropdown" id="drop_shottype">
-                <div class="combo-opt" onclick="comboPick('shottype',this)">Wide</div>
-                <div class="combo-opt" onclick="comboPick('shottype',this)">Medium</div>
-                <div class="combo-opt" onclick="comboPick('shottype',this)">Close-Up</div>
-                <div class="combo-opt" onclick="comboPick('shottype',this)">Extreme Close-Up</div>
-                <div class="combo-opt" onclick="comboPick('shottype',this)">Over the Shoulder</div>
-                <div class="combo-opt" onclick="comboPick('shottype',this)">POV</div>
-                <div class="combo-opt" onclick="comboPick('shottype',this)">Insert</div>
-                <div class="combo-opt" onclick="comboPick('shottype',this)">Aerial</div>
-                <div class="combo-opt" onclick="comboPick('shottype',this)">Two Shot</div>
+                <div class="combo-opt" onclick="comboPick('shottype',this)">Wide</div><div class="combo-opt" onclick="comboPick('shottype',this)">Medium</div><div class="combo-opt" onclick="comboPick('shottype',this)">Close-Up</div><div class="combo-opt" onclick="comboPick('shottype',this)">Extreme Close-Up</div><div class="combo-opt" onclick="comboPick('shottype',this)">Over the Shoulder</div><div class="combo-opt" onclick="comboPick('shottype',this)">POV</div><div class="combo-opt" onclick="comboPick('shottype',this)">Insert</div><div class="combo-opt" onclick="comboPick('shottype',this)">Aerial</div><div class="combo-opt" onclick="comboPick('shottype',this)">Two Shot</div>
               </div>
             </div>
           </div>
-
           <div class="f"><label class="flabel">Movement</label>
             <div class="combo-wrap">
-              <input class="ffield has-arrow" id="f_movement" placeholder="Select or type…" autocomplete="off" oninput="comboFilter('movement')" onfocus="comboOpen('movement')">
+              <input class="ffield" id="f_movement" placeholder="Select or type…" autocomplete="off" oninput="comboFilter('movement')" onfocus="comboOpen('movement')">
               <div class="combo-arrow" onclick="comboToggle('movement')">▾</div>
               <div class="combo-dropdown" id="drop_movement">
-                <div class="combo-opt" onclick="comboPick('movement',this)">Static</div>
-                <div class="combo-opt" onclick="comboPick('movement',this)">Pan Left</div>
-                <div class="combo-opt" onclick="comboPick('movement',this)">Pan Right</div>
-                <div class="combo-opt" onclick="comboPick('movement',this)">Tilt Up</div>
-                <div class="combo-opt" onclick="comboPick('movement',this)">Tilt Down</div>
-                <div class="combo-opt" onclick="comboPick('movement',this)">Dolly In</div>
-                <div class="combo-opt" onclick="comboPick('movement',this)">Dolly Out</div>
-                <div class="combo-opt" onclick="comboPick('movement',this)">Truck Left</div>
-                <div class="combo-opt" onclick="comboPick('movement',this)">Truck Right</div>
-                <div class="combo-opt" onclick="comboPick('movement',this)">Handheld</div>
-                <div class="combo-opt" onclick="comboPick('movement',this)">Steadicam</div>
-                <div class="combo-opt" onclick="comboPick('movement',this)">Crane Up</div>
-                <div class="combo-opt" onclick="comboPick('movement',this)">Crane Down</div>
-                <div class="combo-opt" onclick="comboPick('movement',this)">Drone</div>
-                <div class="combo-opt" onclick="comboPick('movement',this)">Zoom In</div>
-                <div class="combo-opt" onclick="comboPick('movement',this)">Zoom Out</div>
+                <div class="combo-opt" onclick="comboPick('movement',this)">Static</div><div class="combo-opt" onclick="comboPick('movement',this)">Pan Left</div><div class="combo-opt" onclick="comboPick('movement',this)">Pan Right</div><div class="combo-opt" onclick="comboPick('movement',this)">Tilt Up</div><div class="combo-opt" onclick="comboPick('movement',this)">Tilt Down</div><div class="combo-opt" onclick="comboPick('movement',this)">Dolly In</div><div class="combo-opt" onclick="comboPick('movement',this)">Dolly Out</div><div class="combo-opt" onclick="comboPick('movement',this)">Truck Left</div><div class="combo-opt" onclick="comboPick('movement',this)">Truck Right</div><div class="combo-opt" onclick="comboPick('movement',this)">Handheld</div><div class="combo-opt" onclick="comboPick('movement',this)">Steadicam</div><div class="combo-opt" onclick="comboPick('movement',this)">Crane Up</div><div class="combo-opt" onclick="comboPick('movement',this)">Crane Down</div><div class="combo-opt" onclick="comboPick('movement',this)">Drone</div><div class="combo-opt" onclick="comboPick('movement',this)">Zoom In</div><div class="combo-opt" onclick="comboPick('movement',this)">Zoom Out</div>
               </div>
             </div>
           </div>
-
-          <div class="f"><label class="flabel">Equipment</label><input class="ffield" id="f_equip" placeholder="Tripod, Gimbal, Drone…" style="padding-right:12px"></div>
-
+          <div class="f"><label class="flabel">Equipment</label><input class="ffield no-arrow" id="f_equip" placeholder="Tripod, Gimbal, Drone…"></div>
           <div class="f"><label class="flabel">Frame Rate</label>
             <div class="combo-wrap">
-              <input class="ffield has-arrow" id="f_fps" placeholder="Select or type…" autocomplete="off" oninput="comboFilter('fps')" onfocus="comboOpen('fps')">
+              <input class="ffield" id="f_fps" placeholder="Select or type…" autocomplete="off" oninput="comboFilter('fps')" onfocus="comboOpen('fps')">
               <div class="combo-arrow" onclick="comboToggle('fps')">▾</div>
               <div class="combo-dropdown" id="drop_fps">
-                <div class="combo-opt" onclick="comboPick('fps',this)">23.976</div>
-                <div class="combo-opt" onclick="comboPick('fps',this)">24</div>
-                <div class="combo-opt" onclick="comboPick('fps',this)">25</div>
-                <div class="combo-opt" onclick="comboPick('fps',this)">29.97</div>
-                <div class="combo-opt" onclick="comboPick('fps',this)">30</div>
-                <div class="combo-opt" onclick="comboPick('fps',this)">48</div>
-                <div class="combo-opt" onclick="comboPick('fps',this)">60</div>
-                <div class="combo-opt" onclick="comboPick('fps',this)">120</div>
-                <div class="combo-opt" onclick="comboPick('fps',this)">240</div>
+                <div class="combo-opt" onclick="comboPick('fps',this)">23.976</div><div class="combo-opt" onclick="comboPick('fps',this)">24</div><div class="combo-opt" onclick="comboPick('fps',this)">25</div><div class="combo-opt" onclick="comboPick('fps',this)">29.97</div><div class="combo-opt" onclick="comboPick('fps',this)">30</div><div class="combo-opt" onclick="comboPick('fps',this)">48</div><div class="combo-opt" onclick="comboPick('fps',this)">60</div><div class="combo-opt" onclick="comboPick('fps',this)">120</div><div class="combo-opt" onclick="comboPick('fps',this)">240</div>
               </div>
             </div>
           </div>
-
           <div class="f"><label class="flabel">Sound</label>
             <div class="combo-wrap">
-              <input class="ffield has-arrow" id="f_sound" placeholder="Select or type…" autocomplete="off" oninput="comboFilter('sound')" onfocus="comboOpen('sound')">
+              <input class="ffield" id="f_sound" placeholder="Select or type…" autocomplete="off" oninput="comboFilter('sound')" onfocus="comboOpen('sound')">
               <div class="combo-arrow" onclick="comboToggle('sound')">▾</div>
               <div class="combo-dropdown" id="drop_sound">
-                <div class="combo-opt" onclick="comboPick('sound',this)">Sync Sound</div>
-                <div class="combo-opt" onclick="comboPick('sound',this)">MOS</div>
-                <div class="combo-opt" onclick="comboPick('sound',this)">Wild Sound</div>
-                <div class="combo-opt" onclick="comboPick('sound',this)">Playback</div>
+                <div class="combo-opt" onclick="comboPick('sound',this)">Sync Sound</div><div class="combo-opt" onclick="comboPick('sound',this)">MOS</div><div class="combo-opt" onclick="comboPick('sound',this)">Wild Sound</div><div class="combo-opt" onclick="comboPick('sound',this)">Playback</div>
               </div>
             </div>
           </div>
-
-          <div class="f"><label class="flabel">Time of Shoot</label><input class="ffield" id="f_time" type="time" style="padding-right:12px"></div>
+          <div class="f"><label class="flabel">Time of Shoot</label><input class="ffield no-arrow" id="f_time" type="time"></div>
         </div>
       </div>
 
@@ -688,109 +804,50 @@ input.ffield:not(.has-arrow) { padding-right: 12px; }
         <div class="fg fg-3">
           <div class="f"><label class="flabel">Lighting Setup</label>
             <div class="combo-wrap">
-              <input class="ffield has-arrow" id="f_lightsetup" placeholder="Select or type…" autocomplete="off" oninput="comboFilter('lightsetup')" onfocus="comboOpen('lightsetup')">
+              <input class="ffield" id="f_lightsetup" placeholder="Select or type…" autocomplete="off" oninput="comboFilter('lightsetup')" onfocus="comboOpen('lightsetup')">
               <div class="combo-arrow" onclick="comboToggle('lightsetup')">▾</div>
               <div class="combo-dropdown" id="drop_lightsetup">
-                <div class="combo-opt" onclick="comboPick('lightsetup',this)">Natural / Available</div>
-                <div class="combo-opt" onclick="comboPick('lightsetup',this)">Three-Point</div>
-                <div class="combo-opt" onclick="comboPick('lightsetup',this)">Two-Point</div>
-                <div class="combo-opt" onclick="comboPick('lightsetup',this)">High Key</div>
-                <div class="combo-opt" onclick="comboPick('lightsetup',this)">Low Key</div>
-                <div class="combo-opt" onclick="comboPick('lightsetup',this)">Rembrandt</div>
-                <div class="combo-opt" onclick="comboPick('lightsetup',this)">Butterfly / Clamshell</div>
-                <div class="combo-opt" onclick="comboPick('lightsetup',this)">Split</div>
-                <div class="combo-opt" onclick="comboPick('lightsetup',this)">Loop</div>
-                <div class="combo-opt" onclick="comboPick('lightsetup',this)">Practical Lights Only</div>
-                <div class="combo-opt" onclick="comboPick('lightsetup',this)">Silhouette</div>
-                <div class="combo-opt" onclick="comboPick('lightsetup',this)">Backlit / Rim</div>
-                <div class="combo-opt" onclick="comboPick('lightsetup',this)">Motivated</div>
-                <div class="combo-opt" onclick="comboPick('lightsetup',this)">Top Light</div>
-                <div class="combo-opt" onclick="comboPick('lightsetup',this)">Under Light</div>
+                <div class="combo-opt" onclick="comboPick('lightsetup',this)">Natural / Available</div><div class="combo-opt" onclick="comboPick('lightsetup',this)">Three-Point</div><div class="combo-opt" onclick="comboPick('lightsetup',this)">Two-Point</div><div class="combo-opt" onclick="comboPick('lightsetup',this)">High Key</div><div class="combo-opt" onclick="comboPick('lightsetup',this)">Low Key</div><div class="combo-opt" onclick="comboPick('lightsetup',this)">Rembrandt</div><div class="combo-opt" onclick="comboPick('lightsetup',this)">Butterfly / Clamshell</div><div class="combo-opt" onclick="comboPick('lightsetup',this)">Split</div><div class="combo-opt" onclick="comboPick('lightsetup',this)">Loop</div><div class="combo-opt" onclick="comboPick('lightsetup',this)">Practical Lights Only</div><div class="combo-opt" onclick="comboPick('lightsetup',this)">Silhouette</div><div class="combo-opt" onclick="comboPick('lightsetup',this)">Backlit / Rim</div><div class="combo-opt" onclick="comboPick('lightsetup',this)">Motivated</div><div class="combo-opt" onclick="comboPick('lightsetup',this)">Top Light</div><div class="combo-opt" onclick="comboPick('lightsetup',this)">Under Light</div>
               </div>
             </div>
           </div>
-
           <div class="f"><label class="flabel">Time of Day / Source</label>
             <div class="combo-wrap">
-              <input class="ffield has-arrow" id="f_lighttime" placeholder="Select or type…" autocomplete="off" oninput="comboFilter('lighttime')" onfocus="comboOpen('lighttime')">
+              <input class="ffield" id="f_lighttime" placeholder="Select or type…" autocomplete="off" oninput="comboFilter('lighttime')" onfocus="comboOpen('lighttime')">
               <div class="combo-arrow" onclick="comboToggle('lighttime')">▾</div>
               <div class="combo-dropdown" id="drop_lighttime">
-                <div class="combo-opt" onclick="comboPick('lighttime',this)">Golden Hour</div>
-                <div class="combo-opt" onclick="comboPick('lighttime',this)">Blue Hour</div>
-                <div class="combo-opt" onclick="comboPick('lighttime',this)">Magic Hour</div>
-                <div class="combo-opt" onclick="comboPick('lighttime',this)">Midday / Harsh Sun</div>
-                <div class="combo-opt" onclick="comboPick('lighttime',this)">Overcast / Diffused</div>
-                <div class="combo-opt" onclick="comboPick('lighttime',this)">Night / Moonlight</div>
-                <div class="combo-opt" onclick="comboPick('lighttime',this)">Artificial — Tungsten</div>
-                <div class="combo-opt" onclick="comboPick('lighttime',this)">Artificial — Fluorescent</div>
-                <div class="combo-opt" onclick="comboPick('lighttime',this)">Artificial — LED</div>
-                <div class="combo-opt" onclick="comboPick('lighttime',this)">Artificial — Neon</div>
-                <div class="combo-opt" onclick="comboPick('lighttime',this)">Practical — Candle / Flame</div>
-                <div class="combo-opt" onclick="comboPick('lighttime',this)">Practical — Screen Glow</div>
-                <div class="combo-opt" onclick="comboPick('lighttime',this)">Practical — Streetlight</div>
-                <div class="combo-opt" onclick="comboPick('lighttime',this)">Mixed Sources</div>
+                <div class="combo-opt" onclick="comboPick('lighttime',this)">Golden Hour</div><div class="combo-opt" onclick="comboPick('lighttime',this)">Blue Hour</div><div class="combo-opt" onclick="comboPick('lighttime',this)">Magic Hour</div><div class="combo-opt" onclick="comboPick('lighttime',this)">Midday / Harsh Sun</div><div class="combo-opt" onclick="comboPick('lighttime',this)">Overcast / Diffused</div><div class="combo-opt" onclick="comboPick('lighttime',this)">Night / Moonlight</div><div class="combo-opt" onclick="comboPick('lighttime',this)">Artificial — Tungsten</div><div class="combo-opt" onclick="comboPick('lighttime',this)">Artificial — Fluorescent</div><div class="combo-opt" onclick="comboPick('lighttime',this)">Artificial — LED</div><div class="combo-opt" onclick="comboPick('lighttime',this)">Artificial — Neon</div><div class="combo-opt" onclick="comboPick('lighttime',this)">Practical — Candle / Flame</div><div class="combo-opt" onclick="comboPick('lighttime',this)">Practical — Screen Glow</div><div class="combo-opt" onclick="comboPick('lighttime',this)">Practical — Streetlight</div><div class="combo-opt" onclick="comboPick('lighttime',this)">Mixed Sources</div>
               </div>
             </div>
           </div>
-
           <div class="f"><label class="flabel">Colour Temperature</label>
             <div class="combo-wrap">
-              <input class="ffield has-arrow" id="f_lighttemp" placeholder="Select or type…" autocomplete="off" oninput="comboFilter('lighttemp')" onfocus="comboOpen('lighttemp')">
+              <input class="ffield" id="f_lighttemp" placeholder="Select or type…" autocomplete="off" oninput="comboFilter('lighttemp')" onfocus="comboOpen('lighttemp')">
               <div class="combo-arrow" onclick="comboToggle('lighttemp')">▾</div>
               <div class="combo-dropdown" id="drop_lighttemp">
-                <div class="combo-opt" onclick="comboPick('lighttemp',this)">2700K — Warm / Candlelight</div>
-                <div class="combo-opt" onclick="comboPick('lighttemp',this)">3200K — Tungsten</div>
-                <div class="combo-opt" onclick="comboPick('lighttemp',this)">4000K — Neutral</div>
-                <div class="combo-opt" onclick="comboPick('lighttemp',this)">5600K — Daylight</div>
-                <div class="combo-opt" onclick="comboPick('lighttemp',this)">6500K — Cool / Overcast</div>
-                <div class="combo-opt" onclick="comboPick('lighttemp',this)">Mixed</div>
-                <div class="combo-opt" onclick="comboPick('lighttemp',this)">Practical — As Is</div>
+                <div class="combo-opt" onclick="comboPick('lighttemp',this)">2700K — Warm / Candlelight</div><div class="combo-opt" onclick="comboPick('lighttemp',this)">3200K — Tungsten</div><div class="combo-opt" onclick="comboPick('lighttemp',this)">4000K — Neutral</div><div class="combo-opt" onclick="comboPick('lighttemp',this)">5600K — Daylight</div><div class="combo-opt" onclick="comboPick('lighttemp',this)">6500K — Cool / Overcast</div><div class="combo-opt" onclick="comboPick('lighttemp',this)">Mixed</div><div class="combo-opt" onclick="comboPick('lighttemp',this)">Practical — As Is</div>
               </div>
             </div>
           </div>
-
           <div class="f"><label class="flabel">Mood / Tone</label>
             <div class="combo-wrap">
-              <input class="ffield has-arrow" id="f_lightmood" placeholder="Select or type…" autocomplete="off" oninput="comboFilter('lightmood')" onfocus="comboOpen('lightmood')">
+              <input class="ffield" id="f_lightmood" placeholder="Select or type…" autocomplete="off" oninput="comboFilter('lightmood')" onfocus="comboOpen('lightmood')">
               <div class="combo-arrow" onclick="comboToggle('lightmood')">▾</div>
               <div class="combo-dropdown" id="drop_lightmood">
-                <div class="combo-opt" onclick="comboPick('lightmood',this)">Dramatic</div>
-                <div class="combo-opt" onclick="comboPick('lightmood',this)">Romantic</div>
-                <div class="combo-opt" onclick="comboPick('lightmood',this)">Tense / Noir</div>
-                <div class="combo-opt" onclick="comboPick('lightmood',this)">Clinical / Cold</div>
-                <div class="combo-opt" onclick="comboPick('lightmood',this)">Warm / Intimate</div>
-                <div class="combo-opt" onclick="comboPick('lightmood',this)">Ethereal / Dreamy</div>
-                <div class="combo-opt" onclick="comboPick('lightmood',this)">Horror / Unsettling</div>
-                <div class="combo-opt" onclick="comboPick('lightmood',this)">Flat / Documentary</div>
-                <div class="combo-opt" onclick="comboPick('lightmood',this)">Stylised</div>
-                <div class="combo-opt" onclick="comboPick('lightmood',this)">Naturalistic</div>
+                <div class="combo-opt" onclick="comboPick('lightmood',this)">Dramatic</div><div class="combo-opt" onclick="comboPick('lightmood',this)">Romantic</div><div class="combo-opt" onclick="comboPick('lightmood',this)">Tense / Noir</div><div class="combo-opt" onclick="comboPick('lightmood',this)">Clinical / Cold</div><div class="combo-opt" onclick="comboPick('lightmood',this)">Warm / Intimate</div><div class="combo-opt" onclick="comboPick('lightmood',this)">Ethereal / Dreamy</div><div class="combo-opt" onclick="comboPick('lightmood',this)">Horror / Unsettling</div><div class="combo-opt" onclick="comboPick('lightmood',this)">Flat / Documentary</div><div class="combo-opt" onclick="comboPick('lightmood',this)">Stylised</div><div class="combo-opt" onclick="comboPick('lightmood',this)">Naturalistic</div>
               </div>
             </div>
           </div>
-
           <div class="f"><label class="flabel">Key Light Modifier</label>
             <div class="combo-wrap">
-              <input class="ffield has-arrow" id="f_lightmod" placeholder="Select or type…" autocomplete="off" oninput="comboFilter('lightmod')" onfocus="comboOpen('lightmod')">
+              <input class="ffield" id="f_lightmod" placeholder="Select or type…" autocomplete="off" oninput="comboFilter('lightmod')" onfocus="comboOpen('lightmod')">
               <div class="combo-arrow" onclick="comboToggle('lightmod')">▾</div>
               <div class="combo-dropdown" id="drop_lightmod">
-                <div class="combo-opt" onclick="comboPick('lightmod',this)">Bare Bulb</div>
-                <div class="combo-opt" onclick="comboPick('lightmod',this)">Softbox — Small</div>
-                <div class="combo-opt" onclick="comboPick('lightmod',this)">Softbox — Large</div>
-                <div class="combo-opt" onclick="comboPick('lightmod',this)">Octabox</div>
-                <div class="combo-opt" onclick="comboPick('lightmod',this)">Beauty Dish</div>
-                <div class="combo-opt" onclick="comboPick('lightmod',this)">Umbrella — Shoot-through</div>
-                <div class="combo-opt" onclick="comboPick('lightmod',this)">Umbrella — Reflective</div>
-                <div class="combo-opt" onclick="comboPick('lightmod',this)">Fresnel</div>
-                <div class="combo-opt" onclick="comboPick('lightmod',this)">Barn Doors</div>
-                <div class="combo-opt" onclick="comboPick('lightmod',this)">Diffusion Gel</div>
-                <div class="combo-opt" onclick="comboPick('lightmod',this)">Bounce Card / Reflector</div>
-                <div class="combo-opt" onclick="comboPick('lightmod',this)">China Ball</div>
-                <div class="combo-opt" onclick="comboPick('lightmod',this)">LED Panel</div>
+                <div class="combo-opt" onclick="comboPick('lightmod',this)">Bare Bulb</div><div class="combo-opt" onclick="comboPick('lightmod',this)">Softbox — Small</div><div class="combo-opt" onclick="comboPick('lightmod',this)">Softbox — Large</div><div class="combo-opt" onclick="comboPick('lightmod',this)">Octabox</div><div class="combo-opt" onclick="comboPick('lightmod',this)">Beauty Dish</div><div class="combo-opt" onclick="comboPick('lightmod',this)">Umbrella — Shoot-through</div><div class="combo-opt" onclick="comboPick('lightmod',this)">Umbrella — Reflective</div><div class="combo-opt" onclick="comboPick('lightmod',this)">Fresnel</div><div class="combo-opt" onclick="comboPick('lightmod',this)">Barn Doors</div><div class="combo-opt" onclick="comboPick('lightmod',this)">Diffusion Gel</div><div class="combo-opt" onclick="comboPick('lightmod',this)">Bounce Card / Reflector</div><div class="combo-opt" onclick="comboPick('lightmod',this)">China Ball</div><div class="combo-opt" onclick="comboPick('lightmod',this)">LED Panel</div>
               </div>
             </div>
           </div>
-
-          <div class="f"><label class="flabel">Notes</label><input class="ffield" id="f_lightnotes" placeholder="Gel colour, rig details…" style="padding-right:12px"></div>
+          <div class="f"><label class="flabel">Notes</label><input class="ffield no-arrow" id="f_lightnotes" placeholder="Gel colour, rig details…"></div>
         </div>
       </div>
 
@@ -800,91 +857,42 @@ input.ffield:not(.has-arrow) { padding-right: 12px; }
         <div class="fg fg-3">
           <div class="f"><label class="flabel">VFX Required</label>
             <div class="combo-wrap">
-              <input class="ffield has-arrow" id="f_vfx" placeholder="Select or type…" autocomplete="off" oninput="comboFilter('vfx')" onfocus="comboOpen('vfx')">
+              <input class="ffield" id="f_vfx" placeholder="Select or type…" autocomplete="off" oninput="comboFilter('vfx')" onfocus="comboOpen('vfx')">
               <div class="combo-arrow" onclick="comboToggle('vfx')">▾</div>
               <div class="combo-dropdown" id="drop_vfx">
-                <div class="combo-opt" onclick="comboPick('vfx',this)">None</div>
-                <div class="combo-opt" onclick="comboPick('vfx',this)">Green Screen / Chroma Key</div>
-                <div class="combo-opt" onclick="comboPick('vfx',this)">Blue Screen</div>
-                <div class="combo-opt" onclick="comboPick('vfx',this)">Wire Removal</div>
-                <div class="combo-opt" onclick="comboPick('vfx',this)">Object Removal</div>
-                <div class="combo-opt" onclick="comboPick('vfx',this)">Digital Matte Painting</div>
-                <div class="combo-opt" onclick="comboPick('vfx',this)">CGI — Environment</div>
-                <div class="combo-opt" onclick="comboPick('vfx',this)">CGI — Character / Creature</div>
-                <div class="combo-opt" onclick="comboPick('vfx',this)">CGI — Prop / Vehicle</div>
-                <div class="combo-opt" onclick="comboPick('vfx',this)">Crowd Replication</div>
-                <div class="combo-opt" onclick="comboPick('vfx',this)">Sky Replacement</div>
-                <div class="combo-opt" onclick="comboPick('vfx',this)">Face Replacement / De-aging</div>
-                <div class="combo-opt" onclick="comboPick('vfx',this)">Particle FX — Fire</div>
-                <div class="combo-opt" onclick="comboPick('vfx',this)">Particle FX — Smoke</div>
-                <div class="combo-opt" onclick="comboPick('vfx',this)">Particle FX — Water / Fluid</div>
-                <div class="combo-opt" onclick="comboPick('vfx',this)">Particle FX — Explosions</div>
-                <div class="combo-opt" onclick="comboPick('vfx',this)">Particle FX — Dust / Debris</div>
-                <div class="combo-opt" onclick="comboPick('vfx',this)">Motion Graphics / Title</div>
-                <div class="combo-opt" onclick="comboPick('vfx',this)">Speed Ramp / Bullet Time</div>
-                <div class="combo-opt" onclick="comboPick('vfx',this)">Compositing — Multi-Layer</div>
-                <div class="combo-opt" onclick="comboPick('vfx',this)">Rotoscoping</div>
-                <div class="combo-opt" onclick="comboPick('vfx',this)">Colour Grade — Heavy</div>
+                <div class="combo-opt" onclick="comboPick('vfx',this)">None</div><div class="combo-opt" onclick="comboPick('vfx',this)">Green Screen / Chroma Key</div><div class="combo-opt" onclick="comboPick('vfx',this)">Blue Screen</div><div class="combo-opt" onclick="comboPick('vfx',this)">Wire Removal</div><div class="combo-opt" onclick="comboPick('vfx',this)">Object Removal</div><div class="combo-opt" onclick="comboPick('vfx',this)">Digital Matte Painting</div><div class="combo-opt" onclick="comboPick('vfx',this)">CGI — Environment</div><div class="combo-opt" onclick="comboPick('vfx',this)">CGI — Character / Creature</div><div class="combo-opt" onclick="comboPick('vfx',this)">CGI — Prop / Vehicle</div><div class="combo-opt" onclick="comboPick('vfx',this)">Crowd Replication</div><div class="combo-opt" onclick="comboPick('vfx',this)">Sky Replacement</div><div class="combo-opt" onclick="comboPick('vfx',this)">Face Replacement / De-aging</div><div class="combo-opt" onclick="comboPick('vfx',this)">Particle FX — Fire</div><div class="combo-opt" onclick="comboPick('vfx',this)">Particle FX — Smoke</div><div class="combo-opt" onclick="comboPick('vfx',this)">Particle FX — Water / Fluid</div><div class="combo-opt" onclick="comboPick('vfx',this)">Particle FX — Explosions</div><div class="combo-opt" onclick="comboPick('vfx',this)">Particle FX — Dust / Debris</div><div class="combo-opt" onclick="comboPick('vfx',this)">Motion Graphics / Title</div><div class="combo-opt" onclick="comboPick('vfx',this)">Speed Ramp / Bullet Time</div><div class="combo-opt" onclick="comboPick('vfx',this)">Compositing — Multi-Layer</div><div class="combo-opt" onclick="comboPick('vfx',this)">Rotoscoping</div><div class="combo-opt" onclick="comboPick('vfx',this)">Colour Grade — Heavy</div>
               </div>
             </div>
           </div>
-
           <div class="f"><label class="flabel">Practical FX on Set</label>
             <div class="combo-wrap">
-              <input class="ffield has-arrow" id="f_practfx" placeholder="Select or type…" autocomplete="off" oninput="comboFilter('practfx')" onfocus="comboOpen('practfx')">
+              <input class="ffield" id="f_practfx" placeholder="Select or type…" autocomplete="off" oninput="comboFilter('practfx')" onfocus="comboOpen('practfx')">
               <div class="combo-arrow" onclick="comboToggle('practfx')">▾</div>
               <div class="combo-dropdown" id="drop_practfx">
-                <div class="combo-opt" onclick="comboPick('practfx',this)">None</div>
-                <div class="combo-opt" onclick="comboPick('practfx',this)">Pyrotechnics</div>
-                <div class="combo-opt" onclick="comboPick('practfx',this)">Rain / Water</div>
-                <div class="combo-opt" onclick="comboPick('practfx',this)">Wind Machine</div>
-                <div class="combo-opt" onclick="comboPick('practfx',this)">Fog / Smoke Machine</div>
-                <div class="combo-opt" onclick="comboPick('practfx',this)">Snow / Foam</div>
-                <div class="combo-opt" onclick="comboPick('practfx',this)">Breakaway Props</div>
-                <div class="combo-opt" onclick="comboPick('practfx',this)">Controlled Fire</div>
-                <div class="combo-opt" onclick="comboPick('practfx',this)">Squibs / Blood FX</div>
-                <div class="combo-opt" onclick="comboPick('practfx',this)">Wire Work / Rigging</div>
-                <div class="combo-opt" onclick="comboPick('practfx',this)">Miniatures / Forced Perspective</div>
-                <div class="combo-opt" onclick="comboPick('practfx',this)">Animatronic</div>
-                <div class="combo-opt" onclick="comboPick('practfx',this)">Projection Mapping</div>
+                <div class="combo-opt" onclick="comboPick('practfx',this)">None</div><div class="combo-opt" onclick="comboPick('practfx',this)">Pyrotechnics</div><div class="combo-opt" onclick="comboPick('practfx',this)">Rain / Water</div><div class="combo-opt" onclick="comboPick('practfx',this)">Wind Machine</div><div class="combo-opt" onclick="comboPick('practfx',this)">Fog / Smoke Machine</div><div class="combo-opt" onclick="comboPick('practfx',this)">Snow / Foam</div><div class="combo-opt" onclick="comboPick('practfx',this)">Breakaway Props</div><div class="combo-opt" onclick="comboPick('practfx',this)">Controlled Fire</div><div class="combo-opt" onclick="comboPick('practfx',this)">Squibs / Blood FX</div><div class="combo-opt" onclick="comboPick('practfx',this)">Wire Work / Rigging</div><div class="combo-opt" onclick="comboPick('practfx',this)">Miniatures / Forced Perspective</div><div class="combo-opt" onclick="comboPick('practfx',this)">Animatronic</div><div class="combo-opt" onclick="comboPick('practfx',this)">Projection Mapping</div>
               </div>
             </div>
           </div>
-
           <div class="f"><label class="flabel">Tracking Markers</label>
             <div class="combo-wrap">
-              <input class="ffield has-arrow" id="f_tracking" placeholder="Select or type…" autocomplete="off" oninput="comboFilter('tracking')" onfocus="comboOpen('tracking')">
+              <input class="ffield" id="f_tracking" placeholder="Select or type…" autocomplete="off" oninput="comboFilter('tracking')" onfocus="comboOpen('tracking')">
               <div class="combo-arrow" onclick="comboToggle('tracking')">▾</div>
               <div class="combo-dropdown" id="drop_tracking">
-                <div class="combo-opt" onclick="comboPick('tracking',this)">Not Required</div>
-                <div class="combo-opt" onclick="comboPick('tracking',this)">Face Tracking Points</div>
-                <div class="combo-opt" onclick="comboPick('tracking',this)">Body Tracking Suit</div>
-                <div class="combo-opt" onclick="comboPick('tracking',this)">Set Tracking Markers — Walls</div>
-                <div class="combo-opt" onclick="comboPick('tracking',this)">Set Tracking Markers — Floor</div>
-                <div class="combo-opt" onclick="comboPick('tracking',this)">Object Tracking Markers</div>
-                <div class="combo-opt" onclick="comboPick('tracking',this)">Camera Tracking — Wide</div>
-                <div class="combo-opt" onclick="comboPick('tracking',this)">Camera Tracking — Motion Capture</div>
-                <div class="combo-opt" onclick="comboPick('tracking',this)">LIDAR Scan Required</div>
+                <div class="combo-opt" onclick="comboPick('tracking',this)">Not Required</div><div class="combo-opt" onclick="comboPick('tracking',this)">Face Tracking Points</div><div class="combo-opt" onclick="comboPick('tracking',this)">Body Tracking Suit</div><div class="combo-opt" onclick="comboPick('tracking',this)">Set Tracking Markers — Walls</div><div class="combo-opt" onclick="comboPick('tracking',this)">Set Tracking Markers — Floor</div><div class="combo-opt" onclick="comboPick('tracking',this)">Object Tracking Markers</div><div class="combo-opt" onclick="comboPick('tracking',this)">Camera Tracking — Wide</div><div class="combo-opt" onclick="comboPick('tracking',this)">Camera Tracking — Motion Capture</div><div class="combo-opt" onclick="comboPick('tracking',this)">LIDAR Scan Required</div>
               </div>
             </div>
           </div>
-
           <div class="f"><label class="flabel">VFX Complexity</label>
             <div class="combo-wrap">
-              <input class="ffield has-arrow" id="f_vfxcmplx" placeholder="Select or type…" autocomplete="off" oninput="comboFilter('vfxcmplx')" onfocus="comboOpen('vfxcmplx')">
+              <input class="ffield" id="f_vfxcmplx" placeholder="Select or type…" autocomplete="off" oninput="comboFilter('vfxcmplx')" onfocus="comboOpen('vfxcmplx')">
               <div class="combo-arrow" onclick="comboToggle('vfxcmplx')">▾</div>
               <div class="combo-dropdown" id="drop_vfxcmplx">
-                <div class="combo-opt" onclick="comboPick('vfxcmplx',this)">Simple — 1–2 hrs</div>
-                <div class="combo-opt" onclick="comboPick('vfxcmplx',this)">Moderate — Half Day</div>
-                <div class="combo-opt" onclick="comboPick('vfxcmplx',this)">Heavy — Full Day</div>
-                <div class="combo-opt" onclick="comboPick('vfxcmplx',this)">Extensive — Multi-Day</div>
-                <div class="combo-opt" onclick="comboPick('vfxcmplx',this)">Hero Shot — Weeks</div>
+                <div class="combo-opt" onclick="comboPick('vfxcmplx',this)">Simple — 1–2 hrs</div><div class="combo-opt" onclick="comboPick('vfxcmplx',this)">Moderate — Half Day</div><div class="combo-opt" onclick="comboPick('vfxcmplx',this)">Heavy — Full Day</div><div class="combo-opt" onclick="comboPick('vfxcmplx',this)">Extensive — Multi-Day</div><div class="combo-opt" onclick="comboPick('vfxcmplx',this)">Hero Shot — Weeks</div>
               </div>
             </div>
           </div>
-
-          <div class="f"><label class="flabel">VFX Vendor / Dept</label><input class="ffield" id="f_vfxvendor" placeholder="In-house, Studio XYZ…" style="padding-right:12px"></div>
-          <div class="f"><label class="flabel">Notes</label><input class="ffield" id="f_vfxnotes" placeholder="Reference, brief, special req…" style="padding-right:12px"></div>
+          <div class="f"><label class="flabel">VFX Vendor / Dept</label><input class="ffield no-arrow" id="f_vfxvendor" placeholder="In-house, Studio XYZ…"></div>
+          <div class="f"><label class="flabel">Notes</label><input class="ffield no-arrow" id="f_vfxnotes" placeholder="Reference, brief, special req…"></div>
         </div>
       </div>
 
@@ -901,96 +909,126 @@ input.ffield:not(.has-arrow) { padding-right: 12px; }
 <script>
 /* ── DATA ── */
 let shots = JSON.parse(localStorage.getItem('sd4') || '[]');
-const legacyOld = localStorage.getItem('sd3');
-if(legacyOld && !shots.length){ shots = JSON.parse(legacyOld); persist(); }
+const _old = localStorage.getItem('sd3');
+if(_old && !shots.length){ shots = JSON.parse(_old); }
 
 let editId = null;
-let sel = new Set();
-const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2);
+let sel    = new Set();
+const uid  = () => Date.now().toString(36) + Math.random().toString(36).slice(2);
 
+const ALL_FIELDS = ['scene','shot','desc','subject','camera','shotsize','shottype','movement',
+  'equip','fps','sound','location','time',
+  'lightsetup','lighttime','lighttemp','lightmood','lightmod','lightnotes',
+  'vfx','practfx','tracking','vfxcmplx','vfxvendor','vfxnotes'];
+
+const EXPORT_HEADERS = ['Scene','Shot','Description','Subject','Camera','Shot Size','Shot Type',
+  'Movement','Equipment','FPS','Sound','Location','Time',
+  'Light Setup','Light Time','Light Temp','Light Mood','Light Modifier','Light Notes',
+  'VFX','Practical FX','Tracking','VFX Complexity','VFX Vendor','VFX Notes'];
+
+/* ── PERSIST + STATS ── */
 function persist() {
   localStorage.setItem('sd4', JSON.stringify(shots));
-  const sc = new Set(shots.map(s=>s.scene).filter(Boolean));
-  document.getElementById('metaShots').textContent = shots.length;
-  document.getElementById('metaScenes').textContent = sc.size;
+  const scenes = [...new Set(shots.map(s=>s.scene).filter(Boolean))];
+  document.getElementById('metaShots').textContent  = shots.length;
+  document.getElementById('metaScenes').textContent = scenes.length;
+
+  // stats panel
+  document.getElementById('st_shots').textContent  = shots.length;
+  document.getElementById('st_scenes').textContent = scenes.length;
+  const vfxCount = shots.filter(s=>s.vfx && s.vfx !== 'None').length;
+  document.getElementById('st_vfx').textContent = vfxCount;
+  const framed = shots.filter(s=>s.image).length;
+  document.getElementById('st_framed').textContent = framed;
+  const pct = shots.length ? Math.round(framed/shots.length*100) : 0;
+  document.getElementById('st_pct').textContent = pct + '%';
+  document.getElementById('st_bar').style.width = pct + '%';
+
+  // top movement
+  const mvCounts = {};
+  shots.forEach(s=>{ if(s.movement){ mvCounts[s.movement]=(mvCounts[s.movement]||0)+1; } });
+  const topMv = Object.entries(mvCounts).sort((a,b)=>b[1]-a[1])[0];
+  document.getElementById('st_mostmove').textContent = topMv ? topMv[0] : '—';
 }
 
-function esc(v) {
-  return String(v||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-function pill(v, cls) {
+/* ── HELPERS ── */
+function esc(v){ return String(v||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function pill(v,cls){
   if(!v) return `<span class="pill pill-e">—</span>`;
-  const s = v.length > 15 ? v.slice(0,13)+'…' : v;
+  const s = v.length>15 ? v.slice(0,13)+'…' : v;
   return `<span class="pill ${cls}" title="${esc(v)}">${esc(s)}</span>`;
 }
 
 /* ── COMBO ── */
 let _openCombo = null;
-
-function comboOpen(name) {
+function comboOpen(name){
   closeAllCombos();
   document.getElementById('drop_'+name).classList.add('open');
   _openCombo = name;
 }
-function comboToggle(name) {
+function comboToggle(name){
   const drop = document.getElementById('drop_'+name);
   const wasOpen = drop.classList.contains('open');
   closeAllCombos();
   if(!wasOpen){ drop.classList.add('open'); _openCombo = name; }
 }
-function comboFilter(name) {
+function comboFilter(name){
   const val = document.getElementById('f_'+name).value.toLowerCase();
-  const opts = document.querySelectorAll(`#drop_${name} .combo-opt`);
-  opts.forEach(o => o.classList.toggle('hidden', !o.textContent.toLowerCase().includes(val)));
+  document.querySelectorAll(`#drop_${name} .combo-opt`).forEach(o=>o.classList.toggle('hidden',!o.textContent.toLowerCase().includes(val)));
   document.getElementById('drop_'+name).classList.add('open');
   _openCombo = name;
 }
-function comboPick(name, el) {
+function comboPick(name,el){
   document.getElementById('f_'+name).value = el.textContent.trim();
   document.querySelectorAll(`#drop_${name} .combo-opt`).forEach(o=>o.classList.remove('active'));
   el.classList.add('active');
   closeAllCombos();
 }
-function closeAllCombos() {
+function closeAllCombos(){
   document.querySelectorAll('.combo-dropdown').forEach(d=>d.classList.remove('open'));
   _openCombo = null;
 }
-document.addEventListener('mousedown', e => {
+document.addEventListener('mousedown', e=>{
   if(!e.target.closest('.combo-wrap')) closeAllCombos();
   if(!e.target.closest('.ddwrap')) document.getElementById('dd').classList.remove('open');
 });
 
 /* ── RENDER ── */
-function renderAll() {
+function renderAll(){
   const q  = document.getElementById('searchInput').value.toLowerCase();
   const sc = document.getElementById('filterScene').value;
   const tp = document.getElementById('filterType').value;
-  let vis = shots.filter(s => {
+  const vis = shots.filter(s=>{
     const txt = Object.values(s).join(' ').toLowerCase();
-    return (!q || txt.includes(q)) && (!sc || String(s.scene)===sc) && (!tp || s.shottype===tp);
+    return (!q||txt.includes(q))&&(!sc||String(s.scene)===sc)&&(!tp||s.shottype===tp);
   });
+
   document.getElementById('tally').textContent = `${vis.length} shot${vis.length!==1?'s':''}`;
+
   const allSc = [...new Set(shots.map(s=>s.scene).filter(Boolean).sort((a,b)=>a-b))];
-  const scEl = document.getElementById('filterScene');
-  const prev = scEl.value;
-  scEl.innerHTML = '<option value="">All Scenes</option>' + allSc.map(n=>`<option ${String(n)===prev?'selected':''}>${n}</option>`).join('');
+  const scEl  = document.getElementById('filterScene');
+  const prev  = scEl.value;
+  scEl.innerHTML = '<option value="">All Scenes</option>'+allSc.map(n=>`<option ${String(n)===prev?'selected':''}>${n}</option>`).join('');
+
   const root = document.getElementById('root');
   if(!vis.length){
-    root.innerHTML = `<div class="empty">
-      <div class="empty-title">${shots.length ? 'Nothing matches.' : 'Your shot list awaits.'}</div>
-      <div class="empty-sub">${shots.length ? 'Try clearing your filters.' : 'Click "Add Shot" to get rolling.'}</div>
-      ${!shots.length ? `<button class="btn btn-primary" onclick="openModal()" style="font-size:14px;padding:12px 28px;margin:0 auto">
+    root.innerHTML=`<div class="empty">
+      <div class="empty-title">${shots.length?'Nothing matches.':'Your shot list awaits.'}</div>
+      <div class="empty-sub">${shots.length?'Try clearing your filters.':'Hit "Add Shot" to begin building.'}</div>
+      ${!shots.length?`<button class="btn btn-primary" onclick="openModal()" style="margin:0 auto;font-size:14px;padding:12px 28px">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Add First Shot
-      </button>` : ''}
+      </button>`:''}
     </div>`;
     return;
   }
-  const groups = {};
-  vis.forEach(s => { const k=s.scene||'?'; (groups[k]=groups[k]||[]).push(s); });
-  let html = ''; let gi = 0;
-  for(const [scene, rows] of Object.entries(groups)){
-    html += `<div class="scene-group" style="animation-delay:${gi*0.07}s">
+
+  const groups={};
+  vis.forEach(s=>{ const k=s.scene||'?'; (groups[k]=groups[k]||[]).push(s); });
+
+  let html=''; let gi=0;
+  for(const [scene,rows] of Object.entries(groups)){
+    html+=`<div class="scene-group" style="animation-delay:${gi*0.06}s">
       <div class="scene-heading">
         <div class="scene-badge">Scene ${esc(scene)}</div>
         <div class="scene-rule"></div>
@@ -999,7 +1037,7 @@ function renderAll() {
       <div class="table-scroll"><table>
         <thead><tr>
           <th></th><th class="col-img">Frame</th><th>Shot</th>
-          <th style="min-width:160px">Description</th><th style="min-width:96px">Subject</th>
+          <th style="min-width:160px">Description</th><th style="min-width:100px">Subject</th>
           <th>Camera</th><th>Size</th><th>Type</th><th>Movement</th>
           <th style="min-width:100px">Equipment</th><th>FPS</th><th>Sound</th>
           <th style="min-width:100px">Location</th><th>Time</th>
@@ -1015,19 +1053,19 @@ function renderAll() {
       </button></div>`;
     gi++;
   }
-  html += `<button class="add-row" style="margin-top:12px" onclick="openModal()">
+  html+=`<button class="add-row" style="margin-top:12px" onclick="openModal()">
     <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     New scene / shot
   </button>`;
   root.innerHTML = html;
 }
 
-function mkRow(s, ri) {
-  const on = sel.has(s.id) ? 'on' : '';
-  const sr = sel.has(s.id) ? 'sel' : '';
+function mkRow(s,ri){
+  const on=sel.has(s.id)?'on':'';
+  const sr=sel.has(s.id)?'sel':'';
   let imgContent;
-  if(s.image) {
-    imgContent = `<img src="${s.image}" alt="">
+  if(s.image){
+    imgContent=`<img src="${s.image}" alt="">
       <div class="thumb-over">
         <label class="thumb-action">
           <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -1039,7 +1077,7 @@ function mkRow(s, ri) {
         </div>
       </div>`;
   } else {
-    imgContent = `<svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+    imgContent=`<svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
       <label class="thumb-over">
         <svg width="14" height="14" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
         <input type="file" accept="image/*" onchange="upThumb(event,'${s.id}')">
@@ -1059,7 +1097,7 @@ function mkRow(s, ri) {
     <td>${pill(s.fps,'pill-d')}</td>
     <td>${pill(s.sound,'pill-b')}</td>
     <td><input class="cinput" value="${esc(s.location)}" placeholder="Location…" onchange="inl('${s.id}','location',this.value)" onclick="event.stopPropagation()"></td>
-    <td style="font-size:11px;font-weight:600">${s.time||'—'}</td>
+    <td style="font-size:12px;font-weight:600;white-space:nowrap">${s.time||'—'}</td>
     <td>${pill(s.lightsetup,'pill-g')}</td>
     <td>${pill(s.lightmood,'pill-g')}</td>
     <td>${pill(s.vfx,'pill-f')}</td>
@@ -1079,60 +1117,48 @@ function mkRow(s, ri) {
 }
 
 /* ── THUMB ── */
-function upThumb(e, id) {
-  const f = e.target.files[0]; if(!f) return;
-  const r = new FileReader();
-  r.onload = ev => { const s=shots.find(x=>x.id===id); if(s){ s.image=ev.target.result; persist(); renderAll(); toast('Frame updated ✓'); } };
+function upThumb(e,id){
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=ev=>{ const s=shots.find(x=>x.id===id); if(s){ s.image=ev.target.result; persist(); renderAll(); toast('Frame updated ✓'); } };
   r.readAsDataURL(f);
 }
-function removeThumb(e, id) {
+function removeThumb(e,id){
   e.stopPropagation();
-  const s = shots.find(x=>x.id===id);
-  if(s){ s.image=null; persist(); renderAll(); toast('Frame removed'); }
+  const s=shots.find(x=>x.id===id); if(s){ s.image=null; persist(); renderAll(); toast('Frame removed'); }
 }
 
 /* ── SELECTION ── */
-function toggleSel(e, id) {
+function toggleSel(e,id){
   e.stopPropagation();
-  sel.has(id) ? sel.delete(id) : sel.add(id);
-  document.getElementById('delSelBtn').style.display = sel.size ? '' : 'none';
+  sel.has(id)?sel.delete(id):sel.add(id);
+  document.getElementById('delSelBtn').style.display=sel.size?'':'none';
   renderAll();
 }
-function deleteSelected() {
+function deleteSelected(){
   if(!confirm(`Delete ${sel.size} shot(s)?`)) return;
-  shots = shots.filter(s=>!sel.has(s.id));
+  shots=shots.filter(s=>!sel.has(s.id));
   sel.clear(); document.getElementById('delSelBtn').style.display='none';
   persist(); renderAll(); toast('Deleted ✓');
 }
 
-/* ── FIELDS ── */
-const ALL_FIELDS = ['scene','shot','desc','subject','camera','shotsize','shottype','movement',
-  'equip','fps','sound','location','time',
-  'lightsetup','lighttime','lighttemp','lightmood','lightmod','lightnotes',
-  'vfx','practfx','tracking','vfxcmplx','vfxvendor','vfxnotes'];
-
-function inl(id, f, v) { const s=shots.find(x=>x.id===id); if(s){ s[f]=v; persist(); } }
+/* ── INLINE EDIT ── */
+function inl(id,f,v){ const s=shots.find(x=>x.id===id); if(s){ s[f]=v; persist(); } }
 
 /* ── MODAL ── */
-function openModal(id) {
-  editId = id||null;
-  document.getElementById('mTitle').textContent = id ? 'Edit Shot' : 'Add Shot';
-  const s = id ? (shots.find(x=>x.id===id)||{}) : {};
-  ALL_FIELDS.forEach(f => {
-    const el = document.getElementById('f_'+f);
-    if(el) el.value = s[f]||'';
-    const drop = document.getElementById('drop_'+f);
-    if(drop) {
-      drop.querySelectorAll('.combo-opt').forEach(o=>{
-        o.classList.toggle('active', o.textContent.trim()===(s[f]||''));
-        o.classList.remove('hidden');
-      });
-    }
+function openModal(id){
+  editId=id||null;
+  document.getElementById('mTitle').textContent=id?'Edit Shot':'Add Shot';
+  const s=id?(shots.find(x=>x.id===id)||{}):{};
+  ALL_FIELDS.forEach(f=>{
+    const el=document.getElementById('f_'+f); if(el) el.value=s[f]||'';
+    const drop=document.getElementById('drop_'+f);
+    if(drop){ drop.querySelectorAll('.combo-opt').forEach(o=>{ o.classList.toggle('active',o.textContent.trim()===(s[f]||'')); o.classList.remove('hidden'); }); }
   });
   if(!id){
-    const mx = shots.length ? Math.max(...shots.map(x=>+x.shot||0)) : 0;
-    document.getElementById('f_shot').value = mx+1;
-    document.getElementById('f_scene').value = shots.length ? shots[shots.length-1].scene||1 : 1;
+    const mx=shots.length?Math.max(...shots.map(x=>+x.shot||0)):0;
+    document.getElementById('f_shot').value=mx+1;
+    document.getElementById('f_scene').value=shots.length?shots[shots.length-1].scene||1:1;
   }
   document.getElementById('overlay').classList.add('open');
   setTimeout(()=>document.getElementById('f_scene').focus(),50);
@@ -1147,9 +1173,9 @@ function closeModal(){ document.getElementById('overlay').classList.remove('open
 function oClick(e){ if(e.target===document.getElementById('overlay')) closeModal(); }
 
 function saveShot(){
-  const g = id => document.getElementById(id).value.trim();
-  const d = {};
-  ALL_FIELDS.forEach(f => { d[f] = (f==='scene'||f==='shot') ? (+g('f_'+f)||null) : g('f_'+f); });
+  const g=id=>document.getElementById(id).value.trim();
+  const d={};
+  ALL_FIELDS.forEach(f=>{ d[f]=(f==='scene'||f==='shot')?(+g('f_'+f)||null):g('f_'+f); });
   if(editId){
     const i=shots.findIndex(s=>s.id===editId);
     if(i>-1) shots[i]={...shots[i],...d};
@@ -1161,18 +1187,56 @@ function saveShot(){
   shots.sort((a,b)=>(a.scene||0)-(b.scene||0)||(a.shot||0)-(b.shot||0));
   persist(); renderAll(); closeModal();
 }
-
 function delShot(id){ shots=shots.filter(s=>s.id!==id); sel.delete(id); persist(); renderAll(); toast('Deleted'); }
 
 /* ── EXPORT ── */
 function toggleDD(){ document.getElementById('dd').classList.toggle('open'); }
-function exportCSV(){
-  const H=['Scene','Shot','Desc','Subject','Camera','Shot Size','Shot Type','Movement','Equipment','FPS','Sound','Location','Time','Light Setup','Light Time','Light Temp','Light Mood','Light Modifier','Light Notes','VFX','Practical FX','Tracking','VFX Complexity','VFX Vendor','VFX Notes'];
-  const rows=shots.map(s=>ALL_FIELDS.map(k=>`"${(s[k]||'').toString().replace(/"/g,'""')}"`));
-  dl([H.join(','),...rows.map(r=>r.join(','))].join('\n'),'shotlist.csv','text/csv');
-  document.getElementById('dd').classList.remove('open');
+function closeDD() { document.getElementById('dd').classList.remove('open'); }
+
+function exportXLSX(){
+  closeDD();
+  const name = document.getElementById('projectName').value || 'shotlist';
+  const wb = XLSX.utils.book_new();
+
+  // main shot list sheet
+  const rows = shots.map(s => ALL_FIELDS.map(k => s[k]||''));
+  const ws = XLSX.utils.aoa_to_sheet([EXPORT_HEADERS, ...rows]);
+
+  // column widths
+  const widths = [6,6,30,18,14,14,16,16,16,16,8,12,16,8,18,16,24,20,18,16,16,24];
+  ws['!cols'] = widths.map(w=>({wch:w}));
+
+  // header row style (yellow bg, bold — supported by xlsx-style variants but SheetJS free still writes the row)
+  XLSX.utils.book_append_sheet(wb, ws, 'Shot List');
+
+  // scene summary sheet
+  const scenes = [...new Set(shots.map(s=>s.scene).filter(Boolean).sort((a,b)=>a-b))];
+  const summaryRows = scenes.map(sc=>{
+    const sc_shots = shots.filter(s=>s.scene===sc);
+    const vfxShots = sc_shots.filter(s=>s.vfx&&s.vfx!=='None').length;
+    const movements = [...new Set(sc_shots.map(s=>s.movement).filter(Boolean))].join(', ');
+    return [sc, sc_shots.length, vfxShots, movements];
+  });
+  const wsSummary = XLSX.utils.aoa_to_sheet([
+    ['Scene','Total Shots','VFX Shots','Camera Movements'],
+    ...summaryRows
+  ]);
+  wsSummary['!cols'] = [{wch:8},{wch:12},{wch:12},{wch:40}];
+  XLSX.utils.book_append_sheet(wb, wsSummary, 'Scene Summary');
+
+  XLSX.writeFile(wb, name.replace(/[^a-z0-9_\-]/gi,'_')+'_shotlist.xlsx');
+  toast('Exported to XLSX ✓');
 }
-function exportJSON(){ dl(JSON.stringify(shots,null,2),'shotlist.json','application/json'); document.getElementById('dd').classList.remove('open'); }
+
+function exportCSV(){
+  closeDD();
+  const rows=shots.map(s=>ALL_FIELDS.map(k=>`"${(s[k]||'').toString().replace(/"/g,'""')}"`));
+  dl([EXPORT_HEADERS.join(','),...rows.map(r=>r.join(','))].join('\n'),'shotlist.csv','text/csv');
+}
+function exportJSON(){
+  closeDD();
+  dl(JSON.stringify(shots,null,2),'shotlist.json','application/json');
+}
 function dl(c,n,t){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([c],{type:t})); a.download=n; a.click(); }
 
 /* ── TOAST ── */
@@ -1183,12 +1247,12 @@ function toast(msg){
 }
 
 /* ── INIT ── */
-const nameEl = document.getElementById('projectName');
-const savedName = localStorage.getItem('sd4_name')||localStorage.getItem('sd3_name');
+const nameEl=document.getElementById('projectName');
+const savedName=localStorage.getItem('sd4_name')||localStorage.getItem('sd3_name');
 if(savedName){ nameEl.value=savedName; document.title=savedName+' — Shotlist'; }
-nameEl.addEventListener('input', e=>{ localStorage.setItem('sd4_name',e.target.value); document.title=e.target.value+' — Shotlist'; });
+nameEl.addEventListener('input',e=>{ localStorage.setItem('sd4_name',e.target.value); document.title=e.target.value+' — Shotlist'; });
 
-document.addEventListener('keydown', e=>{
+document.addEventListener('keydown',e=>{
   if(e.key==='Escape') closeModal();
   if((e.metaKey||e.ctrlKey)&&e.key==='n'){ e.preventDefault(); openModal(); }
 });
