@@ -206,7 +206,7 @@ body::before {
 
 /* table */
 .table-scroll { overflow-x: auto; }
-table { width: 100%; border-collapse: separate; border-spacing: 0 5px; min-width: 1200px; }
+table { width: 100%; border-collapse: separate; border-spacing: 0 5px; min-width: 1500px; }
 
 thead th {
   font-size: 9px; font-weight: 600; letter-spacing: .16em;
@@ -303,6 +303,8 @@ td:last-child  { border-radius: 0 7px 7px 0; padding-right: 12px; }
 .pill-c { background: #fdf7e8; color: #7a5c18; }
 .pill-d { background: #ece8f5; color: #3d2e70; }
 .pill-e { background: var(--cream2); color: var(--ink3); }
+.pill-f { background: #e8f0fd; color: #1e3a8a; }
+.pill-g { background: #fdf4e8; color: #7c4a0a; }
 
 /* row actions */
 .ractions { display: flex; gap: 4px; opacity: 0; transition: opacity .14s; }
@@ -350,8 +352,8 @@ tbody tr:hover .ractions { opacity: 1; }
   background: var(--cream);
   border: 1px solid var(--border);
   border-radius: 14px;
-  width: 100%; max-width: 580px;
-  max-height: 90vh; overflow-y: auto;
+  width: 100%; max-width: 860px;      /* wider for landscape */
+  max-height: 92vh; overflow-y: auto;
   box-shadow: 0 48px 120px rgba(26,23,20,.28);
   animation: mIn .28s cubic-bezier(.22,1,.36,1);
 }
@@ -361,7 +363,7 @@ tbody tr:hover .ractions { opacity: 1; }
 }
 
 .modal-head {
-  padding: 26px 30px 20px;
+  padding: 22px 30px 18px;
   border-bottom: 1px solid var(--border);
   display: flex; align-items: center; justify-content: space-between;
 }
@@ -377,10 +379,31 @@ tbody tr:hover .ractions { opacity: 1; }
 }
 .modal-x:hover { background: var(--cream2); color: var(--ink); }
 
-.modal-body { padding: 22px 30px 26px; }
-.fg { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+/* ── MODAL SECTIONS ── */
+.modal-body { padding: 20px 30px 24px; display: flex; flex-direction: column; gap: 20px; }
+
+/* section divider */
+.msec-head {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 12px;
+}
+.msec-label {
+  font-size: 9px; font-weight: 600; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--rust); white-space: nowrap;
+}
+.msec-rule { flex: 1; height: 1px; background: var(--border); }
+
+/* landscape grid: 4 cols default, full-width overrides */
+.fg {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 13px 16px;
+}
+.fg.fg-3 { grid-template-columns: repeat(3, 1fr); }
+
 .f  { display: flex; flex-direction: column; gap: 5px; }
-.f.full { grid-column: 1/-1; }
+.f.span2 { grid-column: span 2; }
+.f.full  { grid-column: 1 / -1; }
+
 .flabel {
   font-size: 9px; font-weight: 600; letter-spacing: .16em;
   text-transform: uppercase; color: var(--ink3);
@@ -397,7 +420,7 @@ tbody tr:hover .ractions { opacity: 1; }
   box-shadow: 0 0 0 3px rgba(201,79,44,.1);
 }
 .ffield option { background: #fff; }
-textarea.ffield { resize: vertical; min-height: 68px; }
+textarea.ffield { resize: vertical; min-height: 62px; }
 
 .modal-foot {
   padding: 14px 30px 22px;
@@ -444,6 +467,8 @@ textarea.ffield { resize: vertical; min-height: 68px; }
   .hero, .toolbar, .main { padding-left: 18px; padding-right: 18px; }
   .project-name { font-size: 28px; }
   .hero-right { flex-direction: column; align-items: flex-end; }
+  .fg { grid-template-columns: 1fr 1fr; }
+  .fg.fg-3 { grid-template-columns: 1fr 1fr; }
 }
 @media print {
   .toolbar, .hero-right, .ractions, .add-row { display: none !important; }
@@ -519,59 +544,256 @@ textarea.ffield { resize: vertical; min-height: 68px; }
         <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
+
     <div class="modal-body">
-      <div class="fg">
-        <div class="f"><label class="flabel">Scene #</label><input class="ffield" id="f_scene" type="number" min="1" placeholder="1"></div>
-        <div class="f"><label class="flabel">Shot #</label><input class="ffield" id="f_shot" type="number" min="1" placeholder="1"></div>
-        <div class="f full"><label class="flabel">Description</label><textarea class="ffield" id="f_desc" placeholder="What happens in this shot…"></textarea></div>
-        <div class="f"><label class="flabel">Subject</label><input class="ffield" id="f_subject" placeholder="e.g. Maya, the red car"></div>
-        <div class="f"><label class="flabel">Camera</label><input class="ffield" id="f_camera" placeholder="A-Cam, Sony FX3…"></div>
-        <div class="f"><label class="flabel">Shot Size</label>
-          <select class="ffield" id="f_shotsize">
-            <option value="">—</option>
-            <option>Extreme Wide</option><option>Wide</option><option>Medium Wide</option>
-            <option>Medium</option><option>Medium Close-Up</option><option>Close-Up</option><option>Extreme Close-Up</option>
-          </select>
+
+      <!-- ── SECTION: BASICS ── -->
+      <div>
+        <div class="msec-head">
+          <div class="msec-label">Basics</div>
+          <div class="msec-rule"></div>
         </div>
-        <div class="f"><label class="flabel">Shot Type</label>
-          <select class="ffield" id="f_shottype">
-            <option value="">—</option>
-            <option>Wide</option><option>Medium</option><option>Close-Up</option>
-            <option>Extreme Close-Up</option><option>Over the Shoulder</option>
-            <option>POV</option><option>Insert</option><option>Aerial</option><option>Two Shot</option>
-          </select>
+        <div class="fg">
+          <div class="f"><label class="flabel">Scene #</label><input class="ffield" id="f_scene" type="number" min="1" placeholder="1"></div>
+          <div class="f"><label class="flabel">Shot #</label><input class="ffield" id="f_shot" type="number" min="1" placeholder="1"></div>
+          <div class="f"><label class="flabel">Subject</label><input class="ffield" id="f_subject" placeholder="e.g. Maya, the red car"></div>
+          <div class="f"><label class="flabel">Location</label><input class="ffield" id="f_location" placeholder="Studio A, Rooftop, EXT…"></div>
+          <div class="f full"><label class="flabel">Description</label><textarea class="ffield" id="f_desc" placeholder="What happens in this shot…"></textarea></div>
         </div>
-        <div class="f"><label class="flabel">Movement</label>
-          <select class="ffield" id="f_movement">
-            <option value="">—</option>
-            <option>Static</option><option>Pan Left</option><option>Pan Right</option>
-            <option>Tilt Up</option><option>Tilt Down</option>
-            <option>Dolly In</option><option>Dolly Out</option>
-            <option>Truck Left</option><option>Truck Right</option>
-            <option>Handheld</option><option>Steadicam</option>
-            <option>Crane Up</option><option>Crane Down</option>
-            <option>Drone</option><option>Zoom In</option><option>Zoom Out</option>
-          </select>
-        </div>
-        <div class="f"><label class="flabel">Equipment</label><input class="ffield" id="f_equip" placeholder="Tripod, Gimbal, Drone…"></div>
-        <div class="f"><label class="flabel">Frame Rate</label>
-          <select class="ffield" id="f_fps">
-            <option value="">—</option>
-            <option>23.976</option><option>24</option><option>25</option>
-            <option>29.97</option><option>30</option><option>48</option>
-            <option>60</option><option>120</option><option>240</option>
-          </select>
-        </div>
-        <div class="f"><label class="flabel">Sound</label>
-          <select class="ffield" id="f_sound">
-            <option value="">—</option>
-            <option>Sync Sound</option><option>MOS</option><option>Wild Sound</option><option>Playback</option>
-          </select>
-        </div>
-        <div class="f"><label class="flabel">Location</label><input class="ffield" id="f_location" placeholder="Studio A, Rooftop, EXT…"></div>
-        <div class="f"><label class="flabel">Time of Shoot</label><input class="ffield" id="f_time" type="time"></div>
       </div>
-    </div>
+
+      <!-- ── SECTION: CAMERA ── -->
+      <div>
+        <div class="msec-head">
+          <div class="msec-label">Camera</div>
+          <div class="msec-rule"></div>
+        </div>
+        <div class="fg">
+          <div class="f"><label class="flabel">Camera</label><input class="ffield" id="f_camera" placeholder="A-Cam, Sony FX3…"></div>
+          <div class="f"><label class="flabel">Shot Size</label>
+            <select class="ffield" id="f_shotsize">
+              <option value="">—</option>
+              <option>Extreme Wide</option><option>Wide</option><option>Medium Wide</option>
+              <option>Medium</option><option>Medium Close-Up</option><option>Close-Up</option><option>Extreme Close-Up</option>
+            </select>
+          </div>
+          <div class="f"><label class="flabel">Shot Type</label>
+            <select class="ffield" id="f_shottype">
+              <option value="">—</option>
+              <option>Wide</option><option>Medium</option><option>Close-Up</option>
+              <option>Extreme Close-Up</option><option>Over the Shoulder</option>
+              <option>POV</option><option>Insert</option><option>Aerial</option><option>Two Shot</option>
+            </select>
+          </div>
+          <div class="f"><label class="flabel">Movement</label>
+            <select class="ffield" id="f_movement">
+              <option value="">—</option>
+              <option>Static</option><option>Pan Left</option><option>Pan Right</option>
+              <option>Tilt Up</option><option>Tilt Down</option>
+              <option>Dolly In</option><option>Dolly Out</option>
+              <option>Truck Left</option><option>Truck Right</option>
+              <option>Handheld</option><option>Steadicam</option>
+              <option>Crane Up</option><option>Crane Down</option>
+              <option>Drone</option><option>Zoom In</option><option>Zoom Out</option>
+            </select>
+          </div>
+          <div class="f"><label class="flabel">Equipment</label><input class="ffield" id="f_equip" placeholder="Tripod, Gimbal, Drone…"></div>
+          <div class="f"><label class="flabel">Frame Rate</label>
+            <select class="ffield" id="f_fps">
+              <option value="">—</option>
+              <option>23.976</option><option>24</option><option>25</option>
+              <option>29.97</option><option>30</option><option>48</option>
+              <option>60</option><option>120</option><option>240</option>
+            </select>
+          </div>
+          <div class="f"><label class="flabel">Sound</label>
+            <select class="ffield" id="f_sound">
+              <option value="">—</option>
+              <option>Sync Sound</option><option>MOS</option><option>Wild Sound</option><option>Playback</option>
+            </select>
+          </div>
+          <div class="f"><label class="flabel">Time of Shoot</label><input class="ffield" id="f_time" type="time"></div>
+        </div>
+      </div>
+
+      <!-- ── SECTION: LIGHTING ── -->
+      <div>
+        <div class="msec-head">
+          <div class="msec-label">Lighting</div>
+          <div class="msec-rule"></div>
+        </div>
+        <div class="fg fg-3">
+          <div class="f"><label class="flabel">Lighting Setup</label>
+            <select class="ffield" id="f_lightsetup">
+              <option value="">—</option>
+              <option>Natural / Available</option>
+              <option>Three-Point</option>
+              <option>Two-Point</option>
+              <option>High Key</option>
+              <option>Low Key</option>
+              <option>Rembrandt</option>
+              <option>Butterfly / Clamshell</option>
+              <option>Split</option>
+              <option>Loop</option>
+              <option>Practical Lights Only</option>
+              <option>Silhouette</option>
+              <option>Backlist / Rim</option>
+              <option>Motivated</option>
+              <option>Top Light</option>
+              <option>Under Light</option>
+            </select>
+          </div>
+          <div class="f"><label class="flabel">Time of Day / Source</label>
+            <select class="ffield" id="f_lighttime">
+              <option value="">—</option>
+              <option>Golden Hour</option>
+              <option>Blue Hour</option>
+              <option>Magic Hour</option>
+              <option>Midday / Harsh Sun</option>
+              <option>Overcast / Diffused</option>
+              <option>Night / Moonlight</option>
+              <option>Artificial — Tungsten</option>
+              <option>Artificial — Fluorescent</option>
+              <option>Artificial — LED</option>
+              <option>Artificial — Neon</option>
+              <option>Practical — Candle / Flame</option>
+              <option>Practical — Screen Glow</option>
+              <option>Practical — Streetlight</option>
+              <option>Mixed Sources</option>
+            </select>
+          </div>
+          <div class="f"><label class="flabel">Colour Temperature</label>
+            <select class="ffield" id="f_lighttemp">
+              <option value="">—</option>
+              <option>2700K — Warm / Candlelight</option>
+              <option>3200K — Tungsten</option>
+              <option>4000K — Neutral</option>
+              <option>5600K — Daylight</option>
+              <option>6500K — Cool / Overcast</option>
+              <option>Mixed</option>
+              <option>Practical — As Is</option>
+            </select>
+          </div>
+          <div class="f"><label class="flabel">Mood / Tone</label>
+            <select class="ffield" id="f_lightmood">
+              <option value="">—</option>
+              <option>Dramatic</option>
+              <option>Romantic</option>
+              <option>Tense / Noir</option>
+              <option>Clinical / Cold</option>
+              <option>Warm / Intimate</option>
+              <option>Ethereal / Dreamy</option>
+              <option>Horror / Unsettling</option>
+              <option>Flat / Documentary</option>
+              <option>Stylised</option>
+              <option>Naturalistic</option>
+            </select>
+          </div>
+          <div class="f"><label class="flabel">Key Light Modifier</label>
+            <select class="ffield" id="f_lightmod">
+              <option value="">—</option>
+              <option>Bare Bulb</option>
+              <option>Softbox — Small</option>
+              <option>Softbox — Large</option>
+              <option>Octabox</option>
+              <option>Beauty Dish</option>
+              <option>Umbrella — Shoot-through</option>
+              <option>Umbrella — Reflective</option>
+              <option>Fresnel</option>
+              <option>Barn Doors</option>
+              <option>Diffusion Gel</option>
+              <option>Bounce Card / Reflector</option>
+              <option>China Ball</option>
+              <option>LED Panel</option>
+            </select>
+          </div>
+          <div class="f"><label class="flabel">Notes</label><input class="ffield" id="f_lightnotes" placeholder="Gel colour, rig details…"></div>
+        </div>
+      </div>
+
+      <!-- ── SECTION: VFX ── -->
+      <div>
+        <div class="msec-head">
+          <div class="msec-label">VFX</div>
+          <div class="msec-rule"></div>
+        </div>
+        <div class="fg fg-3">
+          <div class="f"><label class="flabel">VFX Required</label>
+            <select class="ffield" id="f_vfx">
+              <option value="">—</option>
+              <option>None</option>
+              <option>Green Screen / Chroma Key</option>
+              <option>Blue Screen</option>
+              <option>Wire Removal</option>
+              <option>Object Removal</option>
+              <option>Digital Matte Painting</option>
+              <option>CGI — Environment</option>
+              <option>CGI — Character / Creature</option>
+              <option>CGI — Prop / Vehicle</option>
+              <option>Crowd Replication</option>
+              <option>Sky Replacement</option>
+              <option>Face Replacement / De-aging</option>
+              <option>Particle FX — Fire</option>
+              <option>Particle FX — Smoke</option>
+              <option>Particle FX — Water / Fluid</option>
+              <option>Particle FX — Explosions</option>
+              <option>Particle FX — Dust / Debris</option>
+              <option>Motion Graphics / Title</option>
+              <option>Speed Ramp / Bullet Time</option>
+              <option>Compositing — Multi-Layer</option>
+              <option>Rotoscoping</option>
+              <option>Colour Grade — Heavy</option>
+            </select>
+          </div>
+          <div class="f"><label class="flabel">Practical FX on Set</label>
+            <select class="ffield" id="f_practfx">
+              <option value="">—</option>
+              <option>None</option>
+              <option>Pyrotechnics</option>
+              <option>Rain / Water</option>
+              <option>Wind Machine</option>
+              <option>Fog / Smoke Machine</option>
+              <option>Snow / Foam</option>
+              <option>Breakaway Props</option>
+              <option>Controlled Fire</option>
+              <option>Squibs / Blood FX</option>
+              <option>Wire Work / Rigging</option>
+              <option>Miniatures / Forced Perspective</option>
+              <option>Animatronic</option>
+              <option>Projection Mapping</option>
+            </select>
+          </div>
+          <div class="f"><label class="flabel">Tracking Markers</label>
+            <select class="ffield" id="f_tracking">
+              <option value="">—</option>
+              <option>Not Required</option>
+              <option>Face Tracking Points</option>
+              <option>Body Tracking Suit</option>
+              <option>Set Tracking Markers — Walls</option>
+              <option>Set Tracking Markers — Floor</option>
+              <option>Object Tracking Markers</option>
+              <option>Camera Tracking — Wide</option>
+              <option>Camera Tracking — Motion Capture</option>
+              <option>LIDAR Scan Required</option>
+            </select>
+          </div>
+          <div class="f"><label class="flabel">VFX Complexity</label>
+            <select class="ffield" id="f_vfxcmplx">
+              <option value="">—</option>
+              <option>Simple — 1–2 hrs</option>
+              <option>Moderate — Half Day</option>
+              <option>Heavy — Full Day</option>
+              <option>Extensive — Multi-Day</option>
+              <option>Hero Shot — Weeks</option>
+            </select>
+          </div>
+          <div class="f"><label class="flabel">VFX Vendor / Dept</label><input class="ffield" id="f_vfxvendor" placeholder="In-house, Studio XYZ…"></div>
+          <div class="f"><label class="flabel">Notes</label><input class="ffield" id="f_vfxnotes" placeholder="Reference, brief, special req…"></div>
+        </div>
+      </div>
+
+    </div><!-- /modal-body -->
+
     <div class="modal-foot">
       <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
       <button class="btn btn-primary" onclick="saveShot()">Save Shot</button>
@@ -601,7 +823,7 @@ function esc(v) {
 
 function pill(v, cls) {
   return v
-    ? `<span class="pill ${cls}">${esc(v)}</span>`
+    ? `<span class="pill ${cls}" title="${esc(v)}">${esc(v)}</span>`
     : `<span class="pill pill-e">—</span>`;
 }
 
@@ -661,6 +883,11 @@ function renderAll() {
           <th style="min-width:100px">EQUIPMENT</th>
           <th>FPS</th><th>SOUND</th>
           <th style="min-width:100px">LOCATION</th><th>TIME</th>
+          <th style="min-width:110px">LIGHTING</th>
+          <th style="min-width:90px">LT MOOD</th>
+          <th style="min-width:110px">VFX</th>
+          <th style="min-width:100px">PRACT FX</th>
+          <th>VFX CMPLX</th>
           <th></th>
         </tr></thead>
         <tbody>`;
@@ -711,6 +938,11 @@ function mkRow(s) {
     <td>${pill(s.sound,'pill-b')}</td>
     <td><input class="cinput" value="${esc(s.location)}" placeholder="Location…" onchange="inl('${s.id}','location',this.value)" onclick="event.stopPropagation()"></td>
     <td><span style="font-size:11px;color:var(--ink3)">${s.time||'—'}</span></td>
+    <td>${pill(s.lightsetup,'pill-g')}</td>
+    <td>${pill(s.lightmood,'pill-g')}</td>
+    <td>${pill(s.vfx,'pill-f')}</td>
+    <td>${pill(s.practfx,'pill-f')}</td>
+    <td>${pill(s.vfxcmplx,'pill-d')}</td>
     <td>
       <div class="ractions">
         <button class="ibtn" onclick="event.stopPropagation();openModal('${s.id}')" title="Edit">
@@ -751,12 +983,16 @@ function deleteSelected() {
   persist(); renderAll(); toast('Deleted ✓');
 }
 
+const ALL_FIELDS = ['scene','shot','desc','subject','camera','shotsize','shottype','movement',
+  'equip','fps','sound','location','time',
+  'lightsetup','lighttime','lighttemp','lightmood','lightmod','lightnotes',
+  'vfx','practfx','tracking','vfxcmplx','vfxvendor','vfxnotes'];
+
 function openModal(id) {
   editId = id||null;
   document.getElementById('mTitle').textContent = id ? 'Edit Shot' : 'Add Shot';
   const s = id ? (shots.find(x=>x.id===id)||{}) : {};
-  ['scene','shot','desc','subject','camera','shotsize','shottype','movement','equip','fps','sound','location','time']
-    .forEach(f => { const el=document.getElementById('f_'+f); if(el) el.value=s[f]||''; });
+  ALL_FIELDS.forEach(f => { const el=document.getElementById('f_'+f); if(el) el.value=s[f]||''; });
   if(!id) {
     const mx = shots.length ? Math.max(...shots.map(s=>+s.shot||0)) : 0;
     document.getElementById('f_shot').value = mx+1;
@@ -780,13 +1016,10 @@ function oClick(e) { if(e.target===document.getElementById('overlay')) closeModa
 
 function saveShot() {
   const g = id => document.getElementById(id).value.trim();
-  const d = {
-    scene: +g('f_scene')||null, shot: +g('f_shot')||null,
-    desc: g('f_desc'), subject: g('f_subject'), camera: g('f_camera'),
-    shotsize: g('f_shotsize'), shottype: g('f_shottype'), movement: g('f_movement'),
-    equip: g('f_equip'), fps: g('f_fps'), sound: g('f_sound'),
-    location: g('f_location'), time: g('f_time'),
-  };
+  const d = {};
+  ALL_FIELDS.forEach(f => {
+    d[f] = f==='scene'||f==='shot' ? (+g('f_'+f)||null) : g('f_'+f);
+  });
   if(editId) {
     const i = shots.findIndex(s=>s.id===editId);
     if(i>-1) shots[i] = {...shots[i],...d};
@@ -808,8 +1041,15 @@ function toggleDD() { document.getElementById('dd').classList.toggle('open'); }
 document.addEventListener('click', e => { if(!e.target.closest('.ddwrap')) document.getElementById('dd').classList.remove('open'); });
 
 function exportCSV() {
-  const H=['Scene','Shot','Desc','Subject','Camera','Shot Size','Shot Type','Movement','Equipment','FPS','Sound','Location','Time'];
-  const rows=shots.map(s=>[s.scene,s.shot,s.desc,s.subject,s.camera,s.shotsize,s.shottype,s.movement,s.equip,s.fps,s.sound,s.location,s.time].map(v=>`"${(v||'').toString().replace(/"/g,'""')}"`));
+  const H=['Scene','Shot','Desc','Subject','Camera','Shot Size','Shot Type','Movement','Equipment',
+           'FPS','Sound','Location','Time',
+           'Light Setup','Light Time','Light Temp','Light Mood','Light Modifier','Light Notes',
+           'VFX','Practical FX','Tracking','VFX Complexity','VFX Vendor','VFX Notes'];
+  const keys=['scene','shot','desc','subject','camera','shotsize','shottype','movement','equip',
+              'fps','sound','location','time',
+              'lightsetup','lighttime','lighttemp','lightmood','lightmod','lightnotes',
+              'vfx','practfx','tracking','vfxcmplx','vfxvendor','vfxnotes'];
+  const rows=shots.map(s=>keys.map(k=>`"${(s[k]||'').toString().replace(/"/g,'""')}"`));
   dl([H.join(','),...rows.map(r=>r.join(','))].join('\n'),'shotlist.csv','text/csv');
   toggleDD();
 }
